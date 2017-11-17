@@ -1,0 +1,19 @@
+{% load staticfiles %}
+
+<html>
+    <head>
+        <link rel="stylesheet" type="text/css" href="{% static 'css/message_list.css' %}">    
+    </head>
+    <body>
+        <p>
+            Hi
+            {% for m in mes %}
+                <p>{{m}}</p>
+            {% endfor %}
+        </p>
+        <form action="/sent" method="get">
+            <input type="text" name="chat_label">
+            <input type="submit" value="Send">
+        </form>
+    </body>
+</html>
