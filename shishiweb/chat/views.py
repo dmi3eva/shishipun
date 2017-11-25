@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.http import HttpResponse
-from . import models
+from chat.models import User
 
 dialog = []
 theory_dialog = []
@@ -18,9 +18,12 @@ def auth(request):
     
 def auth_check(request):
     log = request.POST.get('login', '')
-    password = request.POST.get('password', '')
-    User.objects.get(login=log)
-    return render(request, 'chat/choose_type.html')
+    pas = request.POST.get('password', '')
+    users = User.objects.all()
+    for user in users:
+        if (user.login == log and user.password == pas):
+            return render(request, 'chat/choose_type.html')
+    return render(request, 'chat/auth.html')
     
 def message_sent(request):
     return render(request, 'chat/chat.html')
