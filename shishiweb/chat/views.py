@@ -1,10 +1,14 @@
 from django.shortcuts import render
-from django.http import HttpResponse
-from . import models
+from chat.models import User
+from django.templatetags.static import static
+import os
+from chat.for_web import generate_answer
 
 dialog = []
 theory_dialog = []
 file =''
+mode="sug_parameters_name"
+last_answer = ""
 
 class Mes:
    source =''
@@ -18,19 +22,26 @@ def auth(request):
     
 def auth_check(request):
     log = request.POST.get('login', '')
-    password = request.POST.get('password', '')
-    User.objects.get(login=log)
-    return render(request, 'chat/choose_type.html')
+    pas = request.POST.get('password', '')
+    users = User.objects.all()
+    for user in users:
+        if (user.login == log and user.password == pas):
+            return render(request, 'chat/choose_type.html')
+    return render(request, 'chat/auth.html')
     
 def message_sent(request):
     return render(request, 'chat/chat.html')
 
 def message_list(request):
+    global last_answer, mode
     text_q = request.GET['chat_label']
+    last_answer = text_q;
+    #print(last_answer)
     mes_q = Mes('user', text_q)
     dialog.append(mes_q)
 
-    text_a = "answer"
+    text_a = generate_answer(last_answer)
+    #text_a = ""
     mes_a = Mes('bot', text_a)
     dialog.append(mes_a)
     c = {"mes": dialog}
@@ -43,6 +54,13 @@ def theory_file_upload(request):
     return render(request, 'chat/theory_file_upload.html') 
     
 def theory_file(request):
+    #parameters_names_file = static('/res/features.txt')
+    #par_file = open(os.path.join(settings.STATIC_ROOT, '/res/features.txt'))
+    
+    module_dir = os.path.dirname(__file__)
+    file_path = os.path.join(module_dir + '/res/features.txt')
+    par_file = open(file_path, 'r')
+    par_file.close()
     if request.method == "POST":
         file = request.FILES['theory_file'].read()
         text_a = "Я прочитал файл!"
@@ -56,7 +74,7 @@ def theory_file(request):
         return render(request, 'chat/theory_file_upload.html', c)
         
 def theory_message_list(request):
-    text_q = request.GET['theory_chat_label']
+    text_q = request.GET['theory_chat_label']    
     mes_q = Mes('user', text_q)
     theory_dialog.append(mes_q)
 
