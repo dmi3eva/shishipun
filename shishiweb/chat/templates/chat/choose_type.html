@@ -1,0 +1,12 @@
+{% load staticfiles %}
+
+<html>
+    <head>
+        <link rel="stylesheet" type="text/css" href="{% static 'css/choose_type.css' %}">    
+    </head>
+    <body>
+        <a href="{% url 'theory_file_upload' %}"> <img class="but1" src="{% static 'images/choosing_type_but1.png' %}" width="16%"/></a>
+        <a href="{% url 'message_sent' %}"> <img class="but2" src="{% static 'images/choosing_type_but2.png' %}" width="16%"/></a>
+        <a href="{% url 'message_sent' %}"> <img class="but2" src="{% static 'images/choosing_type_but3.png' %}" width="16%"/></a>
+    </body>
+</html>

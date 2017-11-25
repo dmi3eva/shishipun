@@ -1,0 +1,29 @@
+{% load staticfiles %}
+
+<html>
+    <head>
+        <link rel="stylesheet" type="text/css" href="{% static 'css/theory_message_list.css' %}">    
+    </head>
+    <body>
+        <a href="{% url 'choosing_type' %}"> <img class="but_back" src="{% static 'images/button_back.png' %}" width="8%"/></a>
+        <div class="table_dialog">
+            <table>
+                {% for m in mes %}
+                <tr>
+                    {% if m.source == "user" %}
+                        <td width="230" align="left"><p class="content">{{m.text}}</p></td>
+                        <td width="230"><p>  </p></td>
+                    {% else %}
+                        <td width="230"><p>  </p></td>
+                        <td width="230" align="right"><p class="content">{{m.text}}</p></td>
+                    {% endif %}
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+        <form action="/sent_theory" method="get">
+            <input type="text" name="theory_chat_label">
+            <input type="submit" value="Отправить">
+        </form>
+    </body>
+</html>
