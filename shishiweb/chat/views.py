@@ -1,8 +1,13 @@
 from django.shortcuts import render
+<<<<<<< HEAD
 from chat.models import User
 from django.templatetags.static import static
 import os
 from chat.for_web import generate_answer
+=======
+from django.http import HttpResponse
+from chat.models import User
+>>>>>>> a64d543bc27f2eb77da01dc5f877a5b3287a45e5
 
 dialog = []
 theory_dialog = []
