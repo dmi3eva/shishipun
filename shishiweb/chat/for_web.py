@@ -1,7 +1,7 @@
 
 # coding: utf-8
 
-# In[ ]:
+
 import os
 
 parameters_names_file = '/res/parameters_names.txt'
@@ -13,15 +13,12 @@ processed_tasks_file = "/res/user_tasks.txt"
 classification_names_file = '/res/tasks_types.txt'
 classification_label_file = '/res/train_classification_labels.txt'
 classification_features_file = "/res/train_classification_features.txt"
-tasks_file = "/res/test_tasks.txt"
-
 
 def generate_files_name(file_name):
     module_dir = os.path.dirname(__file__)
     file = os.path.join(module_dir + file_name)
     return file
 
-# In[61]:
 
 #Save parameters of the task (same for all tasks from the theme)
 def save_parameters_names(list_of_parameters_names): 
@@ -426,19 +423,6 @@ def read_task_from_file(fname):
     return tasks
 
 
-# In[70]:
-
-def extract_features_from_task(tasks):
-    for task in tasks:
-        task = replace_word_with_numbers(task)
-        filename = processed_tasks_file
-        delimiter = "\n#\n"
-        save_task(task, filename, delimiter)
-        features = extract_all_parameters_features(task)
-        for line in features:
-            filename = parameters_features_file
-            save_task(str(line), filename, "\n")
-
 
 # In[71]:
 
@@ -735,11 +719,11 @@ def prepare_data_for_defining_parameter_training():
     parameters_names_file = '/res/parameters_names.txt'
     parameters_names_file = generate_files_name(parameters_names_file)
     
-    test_parameters_label_file = "/res/test_parameters_label.txt"
-    test_parameters_label_file = generate_files_name(test_parameters_label_file)
+    #test_parameters_label_file = "/res/test_parameters_label.txt"
+    #test_parameters_label_file = generate_files_name(test_parameters_label_file)
     
-    test_parameters_features_file = "/res/test_parameters_features.txt"
-    test_parameters_features_file = generate_files_name(test_parameters_features_file)
+    #test_parameters_features_file = "/res/test_parameters_features.txt"
+    #test_parameters_features_file = generate_files_name(test_parameters_features_file)
 
     train_parameters_label_file = "/res/train_parameters_label.txt"
     train_parameters_label_file = generate_files_name(train_parameters_label_file)
@@ -749,11 +733,11 @@ def prepare_data_for_defining_parameter_training():
     
     train_features = pd.read_csv(train_parameters_features_file, header=None)
     train_labels = pd.read_csv(train_parameters_label_file, header=None)
-    test_features = pd.read_csv(test_parameters_features_file, header=None)
-    test_labels = pd.read_csv(test_parameters_label_file, header=None)
+    #test_features = pd.read_csv(test_parameters_features_file, header=None)
+    #test_labels = pd.read_csv(test_parameters_label_file, header=None)
     train_features_scaled = preprocessing.scale(train_features)
-    test_features_scaled = preprocessing.scale(test_features)
-    return train_features_scaled, test_features_scaled, train_labels, test_labels
+    #test_features_scaled = preprocessing.scale(test_features)
+    return train_features_scaled, train_labels
 
 
 # In[82]:
@@ -763,7 +747,7 @@ def prepare_data_for_defining_parameter_training():
 ################################
 
 def defining_parameters_train():
-    data_train, data_test, label_train, label_test = prepare_data_for_defining_parameter_training()
+    data_train, label_train = prepare_data_for_defining_parameter_training()
     label_train = np.ravel(label_train)
 
     max_sc_ann = 0
@@ -899,7 +883,7 @@ def w_repair_parameters(answer, processed_task, nums):
 # In[88]:
 
 def save_defining_parameters(processed_task, task_features, predictions):
-    print(processed_tasks_file)
+    
     save_task(processed_task, processed_tasks_file, "#\n")
     for i in range(len(task_features)):
         feature = str(task_features[i])        
@@ -1008,11 +992,11 @@ def prepare_data_for_classification_training():
     parameters_names_file = '/res/tasks_types.txt'
     parameters_names_file = generate_files_name(parameters_names_file)
 
-    test_classification_label_file = "/res/test_classification_labels.txt"
-    test_classification_label_file = generate_files_name(test_classification_label_file)
+    #test_classification_label_file = "/res/test_classification_labels.txt"
+    #test_classification_label_file = generate_files_name(test_classification_label_file)
 
-    test_classification_features_file = "/res/test_classification_features.txt"
-    test_classification_features_file = generate_files_name(test_classification_features_file)
+    #test_classification_features_file = "/res/test_classification_features.txt"
+    #test_classification_features_file = generate_files_name(test_classification_features_file)
 
     train_classification_label_file = "/res/train_classification_labels.txt"
     train_classification_label_file = generate_files_name(train_classification_label_file)
@@ -1022,11 +1006,11 @@ def prepare_data_for_classification_training():
     
     train_features = pd.read_csv(train_classification_features_file, header=None)
     train_labels = pd.read_csv(train_classification_label_file, header=None)
-    test_features = pd.read_csv(test_classification_features_file, header=None)
-    test_labels = pd.read_csv(test_classification_label_file, header=None)
+    #test_features = pd.read_csv(test_classification_features_file, header=None)
+    #test_labels = pd.read_csv(test_classification_label_file, header=None)
     train_features_scaled = preprocessing.scale(train_features)
-    test_features_scaled = preprocessing.scale(test_features)
-    return train_features_scaled, test_features_scaled, train_labels, test_labels
+    #test_features_scaled = preprocessing.scale(test_features)
+    return train_features_scaled, train_labels
 
 
 # In[94]:
@@ -1038,7 +1022,7 @@ def prepare_data_for_classification_training():
 ################################
 
 def classification_train():
-    data_train, data_test, label_train, label_test = prepare_data_for_classification_training()
+    data_train, label_train = prepare_data_for_classification_training()
     label_train = np.ravel(label_train)
 
     max_sc_ann = 0
@@ -1109,11 +1093,11 @@ def extract_answer_features(task, dp_labels):
 
 def prepare_data_for_answer_training(task_type):    
     folder = "/res/"    
-    test_answer_label_file = folder + str(task_type) + "/test_answer_labels.txt"
-    test_answer_label_file = generate_files_name(test_answer_label_file)
+    #test_answer_label_file = folder + str(task_type) + "/test_answer_labels.txt"
+    #test_answer_label_file = generate_files_name(test_answer_label_file)
 
-    test_answer_features_file = folder + str(task_type) + "/test_answer_features.txt"
-    test_answer_features_file = generate_files_name(test_answer_features_file)
+    #test_answer_features_file = folder + str(task_type) + "/test_answer_features.txt"
+    #test_answer_features_file = generate_files_name(test_answer_features_file)
 
     train_answer_label_file = folder + str(task_type) + "/train_answer_labels.txt"
     train_answer_label_file = generate_files_name(train_answer_label_file)
@@ -1123,18 +1107,18 @@ def prepare_data_for_answer_training(task_type):
 
     train_features = pd.read_csv(train_answer_features_file, header=None)
     train_labels = pd.read_csv(train_answer_label_file, header=None)
-    test_features = pd.read_csv(test_answer_features_file, header=None)
-    test_labels = pd.read_csv(test_answer_label_file, header=None)
+    #test_features = pd.read_csv(test_answer_features_file, header=None)
+    #test_labels = pd.read_csv(test_answer_label_file, header=None)
     train_features_scaled = preprocessing.scale(train_features)
-    test_features_scaled = preprocessing.scale(test_features)
+    #test_features_scaled = preprocessing.scale(test_features)
     #return train_features_scaled, test_features_scaled, train_labels, test_labels
-    return train_features, test_features, train_labels, test_labels
+    return train_features, train_labels
 
 
-# In[100]:
+
 
 def ans_train(task_type):
-    data_train, data_test, label_train, label_test = prepare_data_for_answer_training(task_type)
+    data_train, label_train = prepare_data_for_answer_training(task_type)
     label_train = np.ravel(label_train)
 
     max_sc_ann = 0
@@ -1372,14 +1356,6 @@ def generate_answer(last_answer):
             mode = "sug_task"
             return yes_answer() + "\n" + w_sug_task()  
 
-
-# In[ ]:
-
-
-
-
-# In[ ]:
-
 mode = "sug_parameters_name"
 last_answer = ""
 
@@ -1389,23 +1365,7 @@ def web_dialog():
     while last_answer != "exit":
         print(generate_answer())
         last_answer = input()
-    
-    
-#test()
 
-
-
-# In[ ]:
-
-
-
-
-# In[ ]:
-
-
-
-
-# In[ ]:
 
 
 
