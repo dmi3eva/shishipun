@@ -1,0 +1,16 @@
+{% load staticfiles %}
+
+<html>
+    <head>
+        <link rel="stylesheet" type="text/css" href="{% static 'css/theory_chat.css' %}">    
+    </head>
+    <body>
+        <a href="{% url 'choosing_type' %}"> <img class="but_back" src="{% static 'images/button_back.png' %}" width="8%"/></a>
+        <p> Chat </p>
+        <p> {{ file }} </p>
+        <form action="/sent_theory" method="get">
+            <input type="text" name="theory_chat_label">
+            <input type="submit" value="Отправить">
+        </form>
+    </body>
+</html>

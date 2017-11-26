@@ -2,25 +2,31 @@
 # coding: utf-8
 
 # In[ ]:
+import os
 
-parameters_names_file = 'res/parameters_names.txt'
-parameters_label_file = "res/train_parameters_label.txt"
-parameters_features_file = "res/train_parameters_features.txt"
-processed_tasks_file = "res/user_tasks.txt"
+parameters_names_file = '/res/parameters_names.txt'
+parameters_label_file = "/res/train_parameters_label.txt"
+parameters_features_file = "/res/train_parameters_features.txt"
+processed_tasks_file = "/res/user_tasks.txt"
 
 
-classification_names_file = 'res/tasks_types.txt'
-classification_label_file = 'res/train_classification_labels.txt'
-classification_features_file = "res/train_classification_features.txt"
-tasks_file = "res/test_tasks.txt"
+classification_names_file = '/res/tasks_types.txt'
+classification_label_file = '/res/train_classification_labels.txt'
+classification_features_file = "/res/train_classification_features.txt"
+#tasks_file = "/res/test_tasks.txt"
 
+
+def generate_files_name(file_name):
+    module_dir = os.path.dirname(__file__)
+    file = os.path.join(module_dir + file_name)
+    return file
 
 # In[61]:
 
 #Save parameters of the task (same for all tasks from the theme)
 def save_parameters_names(list_of_parameters_names): 
-    
-    par_file = open(parameters_names_file, 'w')
+    filename = generate_files_name(parameters_names_file)
+    par_file = open(filename, 'w')
     for parameter in list_of_parameters_names:
         par_file.write(parameter + '\n')
     par_file.close()
@@ -30,8 +36,9 @@ def save_parameters_names(list_of_parameters_names):
 # In[62]:
 
 #Read parameters of the task (same for all tasks from the theme)
-def read_parameters_names():     
-    par_file = open(parameters_names_file, 'r')
+def read_parameters_names():  
+    filename = generate_files_name(parameters_names_file)
+    par_file = open(filename, 'r')
     content = par_file.read()
     list_of_parameters_names = content.split('\n')
     list_of_parameters_names.pop()
@@ -40,7 +47,7 @@ def read_parameters_names():
     
     
     return list_of_parameters_names
-print(read_parameters_names())
+#print(read_parameters_names())
 
 
 # In[ ]:
@@ -86,23 +93,7 @@ def process_answer_with_comma(s):
     
     return s
 
-t = "с учётом порядка, с повторениями"
-print(process_answer_with_comma(t))
 
-
-# In[64]:
-
-"""
-def sug_parameters_names():    
-    print("Я правильно понимаю, что нам нужно найти значение следующих параметров: ")
-    names = read_parameters_names()
-    for i in range(len(names)):
-        if (i != len(names) - 1):
-            print("   " + str(i + 1) + ". " + names[i])
-        else:
-            print("   " + str(i + 1) + ". " + names[i] + "?")
-    print("Все правильно?")
-"""
 def w_sug_parameters_names(): 
     
     output = "Я правильно понимаю, что нам нужно найти значение следующих параметров:\n"
@@ -122,7 +113,7 @@ def quest_parameters_names():
     
 
 def ans_parameters_names(): 
-    possible_yes = ["да", 'правильно', 'верно', 'согласен', 'согласна']
+    possible_yes = ["да", 'правильно', 'верно', 'согласен', 'согласна', 'yes']
     possible_no = ["нет"]
     ans = ""
     while (1):
@@ -206,10 +197,8 @@ morph = pymorphy2.MorphAnalyzer()
 
 # In[67]:
 
-import os
-
-def save_task(task, filename, delimiter):
-    
+def save_task(task, fname, delimiter):
+    filename = generate_files_name(fname)
     if os.path.exists:
         file = open(filename, 'a') #if file exists, than add new task
     else:
@@ -419,7 +408,8 @@ def extract_noun(task, parameter):
 
 import os
 
-def read_task_from_file(filename):
+def read_task_from_file(fname):
+    filename = generate_files_name(fname)
     if os.path.exists(filename):
         file = open(filename, 'r')
     else:
@@ -435,19 +425,6 @@ def read_task_from_file(filename):
             s = ""
     return tasks
 
-
-# In[70]:
-
-def extract_features_from_task(tasks):
-    for task in tasks:
-        task = replace_word_with_numbers(task)
-        filename = processed_tasks_file
-        delimiter = "\n#\n"
-        save_task(task, filename, delimiter)
-        features = extract_all_parameters_features(task)
-        for line in features:
-            filename = parameters_features_file
-            save_task(str(line), filename, "\n")
 
 
 # In[71]:
@@ -574,9 +551,6 @@ def extract_numbers(text):
                 
     return parameters
 
-#testing
-text = "Сколько сущствует способов выбрать 10 карандашей из 20, чтобы заточить?"
-print(extract_numbers(text))
 
 
 # In[75]:
@@ -708,25 +682,6 @@ def read_param_from_task(task):
             parameters.append(words[i])
     return task, parameters
 
-def print_task_to_files(task, parameters):
-    task = replace_word_with_numbers(task)
-    filename = tasks_file
-    delimiter = "\n#\n"
-    save_task(task, filename, delimiter)
-    features = extract_all_parameters_features(task)
-    for line in features:
-        filename = parameters_features_file
-        new_line = str(line)[1:-1]        
-        save_task(new_line, filename, "\n")
-    #save_task('#', filename, "\n")
-    #print(str(len(features)) + " " + str(len(parameters) - 2))
-    if len(features) != len(parameters)-2:
-        print('Number of parameters and features are not the same in the task: ' + task)
-        print(task)
-        return
-    for i in range(len(parameters) - 2):
-        filename = parameters_label_file
-        save_task(str(parameters[i]), filename, "\n")
 
 
 # In[ ]:
@@ -764,18 +719,28 @@ from sklearn.metrics import accuracy_score
 
 #Reading data
 def prepare_data_for_defining_parameter_training():
-    parameters_names_file = 'res/parameters_names.txt'
-    test_parameters_label_file = "res/test_parameters_label.txt"
-    test_parameters_features_file = "res/test_parameters_features.txt"
-    train_parameters_label_file = "res/train_parameters_label.txt"
-    train_parameters_features_file = "res/train_parameters_features.txt" 
+    parameters_names_file = '/res/parameters_names.txt'
+    parameters_names_file = generate_files_name(parameters_names_file)
+    
+    #test_parameters_label_file = "/res/test_parameters_label.txt"
+    #test_parameters_label_file = generate_files_name(test_parameters_label_file)
+    
+    #test_parameters_features_file = "/res/test_parameters_features.txt"
+    #test_parameters_features_file = generate_files_name(test_parameters_features_file)
+
+    train_parameters_label_file = "/res/train_parameters_label.txt"
+    train_parameters_label_file = generate_files_name(train_parameters_label_file)
+
+    train_parameters_features_file = "/res/train_parameters_features.txt" 
+    train_parameters_features_file = generate_files_name(train_parameters_features_file)
+    
     train_features = pd.read_csv(train_parameters_features_file, header=None)
     train_labels = pd.read_csv(train_parameters_label_file, header=None)
-    test_features = pd.read_csv(test_parameters_features_file, header=None)
-    test_labels = pd.read_csv(test_parameters_label_file, header=None)
+    #test_features = pd.read_csv(test_parameters_features_file, header=None)
+    #test_labels = pd.read_csv(test_parameters_label_file, header=None)
     train_features_scaled = preprocessing.scale(train_features)
-    test_features_scaled = preprocessing.scale(test_features)
-    return train_features_scaled, test_features_scaled, train_labels, test_labels
+    #test_features_scaled = preprocessing.scale(test_features)
+    return train_features_scaled, train_labels
 
 
 # In[82]:
@@ -785,7 +750,7 @@ def prepare_data_for_defining_parameter_training():
 ################################
 
 def defining_parameters_train():
-    data_train, data_test, label_train, label_test = prepare_data_for_defining_parameter_training()
+    data_train, label_train = prepare_data_for_defining_parameter_training()
     label_train = np.ravel(label_train)
 
     max_sc_ann = 0
@@ -848,49 +813,7 @@ def w_sug_parameters(clf, task):
         answer += "Правильно?"
         return answer, task_features, predictions
 
-def sug_defining_parameters(clf, task):
-        parameters_names = read_parameters_names()        
-        processed_task = replace_word_with_numbers(task)
-        nums = extract_numbers(processed_task)
-        task_features = extract_all_parameters_features(processed_task)
-        predictions = clf.predict(task_features)
-        predictions = repair_prediction(predictions, len(parameters_names))
-              
-        
-        print("Я думаю, что:")      
-        
-        for i in range(len(predictions)):
-                if (predictions[i] != 0): 
-                    if (int(nums[i]) != 10000000007):
-                        print("  " + parameters_names[int(predictions[i]) - 1] + " - " + str(int(nums[i])))
-                    else:
-                        print("  " + parameters_names[int(predictions[i]) - 1] + " - 2")
-                    
-        print("Правильно?")
-        return processed_task, task_features, predictions
-        
 
-
-# In[85]:
-
-def ans_yes_no(): 
-    possible_yes = ["да", 'правильно', 'верно', 'согласен', 'согласна']
-    possible_no = ["нет"]
-    ans = ""
-    while (1):
-        ans = input()
-        ans = process_answer(ans)
-        
-        ans_words = ans.split(" ")
-        if (intersect(ans_words, possible_yes)):
-            print("Ура! Я рад, что всё правильно!")
-            return 1
-        else:
-            if (intersect(ans_words, possible_no)):
-                
-                return 0
-            else:
-                print("К сожалению, я не понял ответа. Напишите, пожалуйста, \"да\" или \"нет\".")
                 
 def w_ans(answer): 
     global last_answer
@@ -963,6 +886,7 @@ def w_repair_parameters(answer, processed_task, nums):
 # In[88]:
 
 def save_defining_parameters(processed_task, task_features, predictions):
+    
     save_task(processed_task, processed_tasks_file, "#\n")
     for i in range(len(task_features)):
         feature = str(task_features[i])        
@@ -979,8 +903,9 @@ def save_defining_parameters(processed_task, task_features, predictions):
 # In[89]:
 
 #Read parameters of the task (same for all tasks from the theme)
-def read_classification_names():     
-    cla_file = open(classification_names_file, 'r')
+def read_classification_names(): 
+    filename = generate_files_name(classification_names_file)    
+    cla_file = open(filename, 'r')
     content = cla_file.read()
     list_of_names = content.split('\n')
     list_of_names.pop()
@@ -988,13 +913,14 @@ def read_classification_names():
     
     
     return list_of_names
-print(read_classification_names())
+
 
 
 # In[90]:
 
 #Save parameters of the task (same for all tasks from the theme)
 def save_classification_names(list_of_parameters_names):     
+    filename = generate_files_name(classification_names_file)  
     cla_file = open(classification_names_file, 'w')
     for parameter in list_of_parameters_names:
         cla_file.write(parameter + '\n')
@@ -1066,18 +992,28 @@ def extract_classification_features(processed_task, parameters_features, paramet
 # In[93]:
 
 def prepare_data_for_classification_training():
-    parameters_names_file = 'res/tasks_types.txt'
-    test_classification_label_file = "res/test_classification_labels.txt"
-    test_classification_features_file = "res/test_classification_features.txt"
-    train_classification_label_file = "res/train_classification_labels.txt"
-    train_classification_features_file = "res/train_classification_features.txt" 
+    parameters_names_file = '/res/tasks_types.txt'
+    parameters_names_file = generate_files_name(parameters_names_file)
+
+    #test_classification_label_file = "/res/test_classification_labels.txt"
+    #test_classification_label_file = generate_files_name(test_classification_label_file)
+
+    #test_classification_features_file = "/res/test_classification_features.txt"
+    #test_classification_features_file = generate_files_name(test_classification_features_file)
+
+    train_classification_label_file = "/res/train_classification_labels.txt"
+    train_classification_label_file = generate_files_name(train_classification_label_file)
+
+    train_classification_features_file = "/res/train_classification_features.txt" 
+    train_classification_features_file = generate_files_name(train_classification_features_file)
+    
     train_features = pd.read_csv(train_classification_features_file, header=None)
     train_labels = pd.read_csv(train_classification_label_file, header=None)
-    test_features = pd.read_csv(test_classification_features_file, header=None)
-    test_labels = pd.read_csv(test_classification_label_file, header=None)
+    #test_features = pd.read_csv(test_classification_features_file, header=None)
+    #test_labels = pd.read_csv(test_classification_label_file, header=None)
     train_features_scaled = preprocessing.scale(train_features)
-    test_features_scaled = preprocessing.scale(test_features)
-    return train_features_scaled, test_features_scaled, train_labels, test_labels
+    #test_features_scaled = preprocessing.scale(test_features)
+    return train_features_scaled, train_labels
 
 
 # In[94]:
@@ -1089,7 +1025,7 @@ def prepare_data_for_classification_training():
 ################################
 
 def classification_train():
-    data_train, data_test, label_train, label_test = prepare_data_for_classification_training()
+    data_train, label_train = prepare_data_for_classification_training()
     label_train = np.ravel(label_train)
 
     max_sc_ann = 0
@@ -1104,17 +1040,6 @@ def classification_train():
 
 # In[108]:
 
-def sug_classification(clf_cl, processed_task, task_features, predictions):
-    features = extract_classification_features(processed_task, task_features, predictions)
-    types = read_classification_names()
-    features_list = []
-    features_list.append(features)
-    
-    prediction = clf_cl.predict(features_list)
-    
-    print("Мне кажется, что эта задача относится к типу \"" + str(types[int(prediction) - 1]) + "\"")
-    print("Правильно?")
-    return features, int(prediction[0])
 
 def w_sug_classification(processed_task, task_features, predictions):
     global cl_clf
@@ -1129,15 +1054,8 @@ def w_sug_classification(processed_task, task_features, predictions):
     
 
 
-# In[119]:
 
-def repair_classification():
-    types = read_classification_names()
-    print("Введите номер правильного типа задачи:")
-    for i in range(len(types)):
-        print(str(i + 1) + " - " + types[i])
-    ans = int(input())
-    return ans
+
 
 def w_repair_classification():
     global classification_names
@@ -1177,25 +1095,33 @@ def extract_answer_features(task, dp_labels):
 # In[99]:
 
 def prepare_data_for_answer_training(task_type):    
-    folder = "res/"    
-    test_answer_label_file = folder + str(task_type) + "/test_answer_labels.txt"
-    test_answer_features_file = folder + str(task_type) + "/test_answer_features.txt"
+    folder = "/res/"    
+    #test_answer_label_file = folder + str(task_type) + "/test_answer_labels.txt"
+    #test_answer_label_file = generate_files_name(test_answer_label_file)
+
+    #test_answer_features_file = folder + str(task_type) + "/test_answer_features.txt"
+    #test_answer_features_file = generate_files_name(test_answer_features_file)
+
     train_answer_label_file = folder + str(task_type) + "/train_answer_labels.txt"
+    train_answer_label_file = generate_files_name(train_answer_label_file)
+
     train_answer_features_file = folder + str(task_type) + "/train_answer_features.txt" 
+    train_answer_features_file = generate_files_name(train_answer_features_file)
+
     train_features = pd.read_csv(train_answer_features_file, header=None)
     train_labels = pd.read_csv(train_answer_label_file, header=None)
-    test_features = pd.read_csv(test_answer_features_file, header=None)
-    test_labels = pd.read_csv(test_answer_label_file, header=None)
+    #test_features = pd.read_csv(test_answer_features_file, header=None)
+    #test_labels = pd.read_csv(test_answer_label_file, header=None)
     train_features_scaled = preprocessing.scale(train_features)
-    test_features_scaled = preprocessing.scale(test_features)
+    #test_features_scaled = preprocessing.scale(test_features)
     #return train_features_scaled, test_features_scaled, train_labels, test_labels
-    return train_features, test_features, train_labels, test_labels
+    return train_features, train_labels
 
 
 # In[100]:
 
 def ans_train(task_type):
-    data_train, data_test, label_train, label_test = prepare_data_for_answer_training(task_type)
+    data_train, label_train = prepare_data_for_answer_training(task_type)
     label_train = np.ravel(label_train)
 
     max_sc_ann = 0
@@ -1233,9 +1159,11 @@ def w_repair_answer():
 # In[103]:
 
 def save_answer(task_type, ans_features, answer):
-    folder = "res/"
-    answer_features_file = folder + str(task_type) + "/train_answer_features.txt"        
+    folder = "/res/"
+    answer_features_file = folder + str(task_type) + "/train_answer_features.txt" 
+       
     answer_label_file = folder + str(task_type) + "/train_answer_labels.txt"
+
     f = str(ans_features)
     f = f[1:-1]
     save_task(f, answer_features_file, "\n")
@@ -1268,9 +1196,9 @@ sug_parameters_replic = "Давай переучимся!"
 
 # In[105]:
 
-mode = "sug_parameters_name"
-last_answer = ""
-prediction = []
+#mode = "sug_parameters_name"
+#last_answer = ""
+#prediction = []
 
 def yes_answer():
     return "Я рад, что всё правильно!"
@@ -1280,7 +1208,9 @@ def nothing_answer():
 
 # In[ ]:
 
-def generate_answer():
+def generate_answer(last_answer):
+    print(last_answer)
+    print(mode)
     global mode, prediction
     global parameters_names, classification_names
     global task, nums, dp_clf, cl_clf, ans_clf
@@ -1317,11 +1247,11 @@ def generate_answer():
         #mode = "sug_classification_names"
         classification_names = read_classification_names()
         if (len(classification_names) != 0):
-            #print("1")
+            
             mode = "ans_classification_names"        
             return w_repairing_done(last_answer) + "\n" + w_sug_classification_names()
         else:
-            #print("1")
+        
             mode = "repair_classification_names"
             return w_repairing_done(last_answer) + "\n" + w_repair_classification_name()
         
@@ -1333,7 +1263,7 @@ def generate_answer():
     if (mode == "ans_classification_names"):
         ans = w_ans(last_answer)
         if (ans == "yes"):
-            #print("Hello")
+        
             mode = "sug_task"
             return yes_answer() + "\n" + w_sug_task()
         if (ans == "no"):
@@ -1449,7 +1379,7 @@ def web_dialog():
     
     
 #test()
-web_dialog()
+
 
 
 # In[ ]:

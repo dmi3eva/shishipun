@@ -1,0 +1,12 @@
+body {
+    background-image: url("../images/chat.jpg");
+    background-repeat: repeat-y;
+    background-size: cover;
+}
+p {
+   margin: 11% 10 10 25%;
+}
+input[type="file"] {
+    margin: 5% 10 10 35%;
+}
+

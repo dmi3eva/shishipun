@@ -1,0 +1,14 @@
+body {
+    background-image: url("../images/choosing_type.jpg");
+    background-repeat: repeat-y;
+    background-size: cover;
+    background-attachment: fixed;
+}
+
+.but1 {
+    margin: 15% 40 10 20%;
+}
+
+.but2 {
+    margin: 0% 40 10 0;
+}

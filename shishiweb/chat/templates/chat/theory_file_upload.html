@@ -1,0 +1,16 @@
+{% load staticfiles %}
+
+<html>
+    <head>
+        <link rel="stylesheet" type="text/css" href="{% static 'css/theory_file_upload.css' %}">    
+    </head>
+    <body>
+        <a href="{% url 'choosing_type' %}"> <img class="but_back" src="{% static 'images/button_back.png' %}" width="8%"/></a>
+        <p> Привет! Пожалуйста, загрузи файл с теорией, которую я должен изучить.</p>
+        <form enctype="multipart/form-data" action="/theory_file/" method="post">
+            {% csrf_token %}
+            <input type="file"  name="theory_file" accept=".txt"/>
+            <input type="submit" value="Отправить" />
+        </form>
+    </body>
+</html>

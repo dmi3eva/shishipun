@@ -1,0 +1,14 @@
+body {
+    background-image: url("../images/auth.jpg");
+    background-repeat: repeat-y;
+    background-size: cover;
+}
+
+.form {
+    width: 30%;
+    height: 40%;
+    padding: 3 3 3 3%;
+    margin: 15% 10 10 35%; 
+    background: #cbdcdf;
+    border-radius: 10px;
+}
