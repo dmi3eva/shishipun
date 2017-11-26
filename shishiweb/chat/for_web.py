@@ -1280,7 +1280,7 @@ def generate_answer(last_answer):
     if (mode == "sug_task"):
         task = replace_word_with_numbers(last_answer)
         res, replic = w_repair_task(last_answer)
-        save_task(task, tasks_file, "\n#\n")
+        save_task(task, processed_tasks_file, "\n#\n")
         if (res == "true"):
             nums = extract_numbers(task)
             dp_clf = defining_parameters_train()

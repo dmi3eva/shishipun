@@ -23,6 +23,7 @@ table {
 }
 
 .content {
-    width: 100%; 
+    font-size: 10px;
+    width: 100%;     
     word-wrap: break-word;
 }

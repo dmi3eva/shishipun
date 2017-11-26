@@ -2,11 +2,19 @@
 
 <html>
     <head>
-        <link rel="stylesheet" type="text/css" href="{% static 'css/theory_message_list.css' %}">    
+        <link rel="stylesheet" type="text/css" href="{% static 'css/theory_message_list.css' %}">  
+         <script type="text/javascript">
+            var block = document.getElementById("mes_table");
+            
+            function scroll_To_Buttom(id) {
+                var block = document.getElementById("mes_table");
+                block.scrollTop = block.scrollHeight - block.clientHeight;
+            }
+        </script>  
     </head>
-    <body>
+     <body onload="scroll_To_Buttom('mes_table')">
         <a href="{% url 'choosing_type' %}"> <img class="but_back" src="{% static 'images/button_back.png' %}" width="8%"/></a>
-        <div class="table_dialog">
+        <div class="table_dialog" id="mes_table">
             <table>
                 {% for m in mes %}
                 <tr>

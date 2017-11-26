@@ -10,6 +10,6 @@ urlpatterns = [
     url('type/$', views.choose_type, name='choosing_type'),
     url('auth/$', views.auth),
     url('auth_check/$', views.auth_check),
-    url('^$', views.choose_type),
+    url('^$', views.auth),
 ]
 

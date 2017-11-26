@@ -1,15 +1,10 @@
 from django.shortcuts import render
-<<<<<<< HEAD
 from chat.models import User
-from django.templatetags.static import static
 import os
 from chat.for_web import generate_answer
-=======
-from django.http import HttpResponse
-from chat.models import User
->>>>>>> a64d543bc27f2eb77da01dc5f877a5b3287a45e5
 
-dialog = []
+user_id = ''
+user_dialog = {}
 theory_dialog = []
 file =''
 mode="sug_parameters_name"
@@ -26,42 +21,68 @@ def auth(request):
     return render(request, 'chat/auth.html')
     
 def auth_check(request):
+    global user_id, dialog
+    print(user_id)
     log = request.POST.get('login', '')
     pas = request.POST.get('password', '')
     users = User.objects.all()
     for user in users:
         if (user.login == log and user.password == pas):
+            request.session['member_id'] = user.id
+            print(request.session['member_id'])
+            user_dialog.update({request.session['member_id']:[]})
             return render(request, 'chat/choose_type.html')
     return render(request, 'chat/auth.html')
     
 def message_sent(request):
-    return render(request, 'chat/chat.html')
+    global user_id
+    if request.session['member_id'] == '':
+        return render(request, 'chat/auth.html')
+    else:
+        user = User.objects.get(id = request.session['member_id'])
+        text_a = "Привет, " + str(user.login) + "!"
+        mes_a = Mes('bot', text_a)
+        dialog = user_dialog.get(request.session['member_id'])
+        dialog.append(mes_a)
+        user_dialog.update({request.session['member_id']:dialog})
+        c = {"mes": dialog}
+        return render(request, 'chat/message_list.html', c)
 
 def message_list(request):
+    if request.session['member_id'] == '':
+        return render(request, 'chat/auth.html')
+    dialog = user_dialog.get(request.session['member_id'])
     global last_answer, mode
     text_q = request.GET['chat_label']
     last_answer = text_q;
-    #print(last_answer)
+    
+    print(request.session['member_id'])
     mes_q = Mes('user', text_q)
     dialog.append(mes_q)
 
     text_a = generate_answer(last_answer)
-    #text_a = ""
     mes_a = Mes('bot', text_a)
     dialog.append(mes_a)
+    user_dialog.update({request.session['member_id']:dialog})
     c = {"mes": dialog}
     return render(request, 'chat/message_list.html', c)
 
 def choose_type(request):
+    if request.session['member_id'] == '':
+        return render(request, 'chat/auth.html')
     return render(request, 'chat/choose_type.html')
 
 def theory_file_upload(request):
+    if request.session['member_id'] == '':
+        return render(request, 'chat/auth.html')
     return render(request, 'chat/theory_file_upload.html') 
     
 def theory_file(request):
     #parameters_names_file = static('/res/features.txt')
     #par_file = open(os.path.join(settings.STATIC_ROOT, '/res/features.txt'))
-    
+    if request.session['member_id'] == '':
+        return render(request, 'chat/auth.html')
+        
     module_dir = os.path.dirname(__file__)
     file_path = os.path.join(module_dir + '/res/features.txt')
     par_file = open(file_path, 'r')
@@ -79,11 +100,14 @@ def theory_file(request):
         return render(request, 'chat/theory_file_upload.html', c)
         
 def theory_message_list(request):
+    if request.session['member_id'] == '':
+        return render(request, 'chat/auth.html')
+        
     text_q = request.GET['theory_chat_label']    
     mes_q = Mes('user', text_q)
     theory_dialog.append(mes_q)
 
-    text_a = "answeredgtrfhyugyttbiuhuihnubyftrxgcvjhnuygtfgvhjgybytdcyvjhgj"
+    text_a = "answer"
     mes_a = Mes('bot', text_a)
     theory_dialog.append(mes_a)
     if file != None:
