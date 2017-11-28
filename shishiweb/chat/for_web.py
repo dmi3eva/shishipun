@@ -706,6 +706,10 @@ import pandas as pd
 
 #preprocessing
 from sklearn import preprocessing
+from sklearn import tree
+from sklearn.tree import DecisionTreeRegressor
+
+
 #libraries for ANN
 from sklearn.neural_network import MLPClassifier
 from sklearn.neural_network import MLPRegressor
@@ -929,7 +933,7 @@ def save_classification_names(list_of_parameters_names):
 
 def w_sug_classification_names():    
     output = []
-    output = "Я правильно понимаю, что задачи бывают следующих типов: \n"
+    output = "Правда ли, что задачи бывают следующих типов: \n"
     names = read_classification_names()
     for i in range(len(names)):
         if (i != len(names) - 1):
@@ -1119,16 +1123,9 @@ def prepare_data_for_answer_training(task_type):
 
 def ans_train(task_type):
     data_train, label_train = prepare_data_for_answer_training(task_type)
-    label_train = np.ravel(label_train)
-
-    max_sc_ann = 0
-    ls1 = 8 #calculated by several experiments
-    ls2 = 10
-
-    ann_clf = MLPRegressor(solver='lbfgs', alpha=1e-5,hidden_layer_sizes=(ls1, ls2), random_state=1)
-    ann_clf.fit(data_train, label_train) 
-    
-    return ann_clf
+    clf = DecisionTreeRegressor()
+    clf.fit(data_train, label_train)
+    return clf
 
 
 # In[109]:
@@ -1205,7 +1202,7 @@ def nothing_answer():
 
 # In[ ]:
 
-def generate_answer(last_answer):
+def generate_answer(last_answer):    
     print(last_answer)
     print(mode)
     global mode, prediction
@@ -1354,17 +1351,12 @@ def generate_answer(last_answer):
             answer = int(last_answer)
             save_answer(classification, answer_features, answer)
             mode = "sug_task"
-            return yes_answer() + "\n" + w_sug_task()  
+            return w_sug_task()  
 
 mode = "sug_parameters_name"
 last_answer = ""
 
-def web_dialog():
-    global last_answer
-    print(last_answer)
-    while last_answer != "exit":
-        print(generate_answer())
-        last_answer = input()
+
 
 
 
