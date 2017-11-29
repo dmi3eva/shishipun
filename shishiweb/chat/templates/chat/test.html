@@ -1,0 +1,25 @@
+{% load staticfiles %}
+
+<html>
+    <head>
+        <link rel="stylesheet" type="text/css" href="{% static 'css/test.css' %}">  
+    </head>
+    <body>
+        <a href="{% url 'rating' %}"> <img class="but_back" src="{% static 'images/button_back.png' %}" width="8%"/></a>
+        <a href="{% url 'logout' %}"> <img class="but_log_out" src="{% static 'images/button_log_out.png' %}" width="10%"/></a>
+        <div class="table_results">
+            <table>
+                {% for task in tasks %}
+                <tr height="20">
+                    <td width="350" align="center"> {{task.text}} </td>
+                    {% if task.mark == 0 %}
+                        <td width="500" align="center"> <p class="right"> Зачтено </p> <td>
+                    {% else %}
+                        <td width="200" align="center"> <p class="wrong"> Незачет </p> <td>
+                    {% endif %}
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </body>
+</html>

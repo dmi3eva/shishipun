@@ -1,0 +1,22 @@
+{% load staticfiles %}
+
+<html>
+    <head>
+        <link rel="stylesheet" type="text/css" href="{% static 'css/rating.css' %}">  
+    </head>
+    <body>
+        <a href="{% url 'choosing_type' %}"> <img class="but_back" src="{% static 'images/button_back.png' %}" width="8%"/></a>
+        <a href="{% url 'logout' %}"> <img class="but_log_out" src="{% static 'images/button_log_out.png' %}" width="10%"/></a>
+        <div class="table_dialog">
+            <table>
+                {% for user in users %}
+                <tr height="20">
+                    <td width="350" align="center"> {{user.name}} </td>
+                    <td width="350" align="center"> {{user.bot_mark}}<td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+        <a href="{% url 'test' %}"> <img class="but_test" src="{% static 'images/button_test.png' %}" width="17%"/></a>
+    </body>
+</html>

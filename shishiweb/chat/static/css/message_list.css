@@ -23,7 +23,11 @@ table {
 }
 
 .content {
-    font-size: 10px;
+    font-size: 14px;
     width: 100%;     
     word-wrap: break-word;
+}
+
+.but_log_out {
+    margin: -7% 0 0 80%;         
 }

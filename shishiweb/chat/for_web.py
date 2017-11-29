@@ -3,23 +3,35 @@
 
 
 import os
+import shutil
 
-parameters_names_file = '/res/parameters_names.txt'
-parameters_label_file = "/res/train_parameters_label.txt"
-parameters_features_file = "/res/train_parameters_features.txt"
-processed_tasks_file = "/res/user_tasks.txt"
+parameters_names_file = 'parameters_names'
+parameters_label_file = "train_parameters_label"
+parameters_features_file = "train_parameters_features"
+processed_tasks_file = "user_tasks"
 
 
-classification_names_file = '/res/tasks_types.txt'
-classification_label_file = '/res/train_classification_labels.txt'
-classification_features_file = "/res/train_classification_features.txt"
+classification_names_file = 'tasks_types'
+classification_label_file = 'train_classification_labels'
+classification_features_file = "train_classification_features"
 
 def generate_files_name(file_name):
+    global user_id
     module_dir = os.path.dirname(__file__)
-    file = os.path.join(module_dir + file_name)
+    file = os.path.join(module_dir + '/res' + str(user_id) + '/' +file_name + '.txt')
     return file
-
-
+    
+def copy_initial_files(source_path, target_path):
+    shutil.copytree(source_path, target_path)
+    print(source_path, target_path)
+    
+def generate_inital_files(filename):
+    target_path = os.path.split(filename)[0]
+    print(target_path)
+    module_dir = os.path.dirname(__file__)
+    source_path = module_dir + '/initial_res'
+    copy_initial_files(source_path, target_path)
+    
 #Save parameters of the task (same for all tasks from the theme)
 def save_parameters_names(list_of_parameters_names): 
     filename = generate_files_name(parameters_names_file)
@@ -35,6 +47,8 @@ def save_parameters_names(list_of_parameters_names):
 #Read parameters of the task (same for all tasks from the theme)
 def read_parameters_names():  
     filename = generate_files_name(parameters_names_file)
+    if os.path.exists(filename)==False:
+        generate_inital_files(filename)
     par_file = open(filename, 'r')
     content = par_file.read()
     list_of_parameters_names = content.split('\n')
@@ -152,12 +166,15 @@ def w_repair_classification_names_done(ans):
     for i in range(len(new_names)):        
         new_names[i] = process_answer_with_comma(new_names[i])   
     
-    save_parameters_names(new_names) 
+    save_classification_names(new_names) 
     return "Я запомнил!"
     
-
-
-# In[65]:
+def w_repair_parameters_done(answer):
+    new_names = answer.split(";")
+    for i in range(len(new_names)):
+        new_names[i] = process_answer_with_comma(new_names[i])
+    save_parameters_names(new_names)
+    return "Я запомнил!"
 
 def read_task():
     nums = []
@@ -706,6 +723,10 @@ import pandas as pd
 
 #preprocessing
 from sklearn import preprocessing
+from sklearn import tree
+from sklearn.tree import DecisionTreeRegressor
+
+
 #libraries for ANN
 from sklearn.neural_network import MLPClassifier
 from sklearn.neural_network import MLPRegressor
@@ -716,22 +737,23 @@ from sklearn.metrics import accuracy_score
 
 #Reading data
 def prepare_data_for_defining_parameter_training():
-    parameters_names_file = '/res/parameters_names.txt'
+    parameters_names_file = 'parameters_names'
     parameters_names_file = generate_files_name(parameters_names_file)
     
-    #test_parameters_label_file = "/res/test_parameters_label.txt"
+    #test_parameters_label_file = "/res/test_parameters_label"
     #test_parameters_label_file = generate_files_name(test_parameters_label_file)
     
-    #test_parameters_features_file = "/res/test_parameters_features.txt"
+    #test_parameters_features_file = "/res/test_parameters_features"
     #test_parameters_features_file = generate_files_name(test_parameters_features_file)
 
-    train_parameters_label_file = "/res/train_parameters_label.txt"
+    train_parameters_label_file = "train_parameters_label"
     train_parameters_label_file = generate_files_name(train_parameters_label_file)
 
-    train_parameters_features_file = "/res/train_parameters_features.txt" 
+    train_parameters_features_file = "train_parameters_features" 
     train_parameters_features_file = generate_files_name(train_parameters_features_file)
     
     train_features = pd.read_csv(train_parameters_features_file, header=None)
+    
     train_labels = pd.read_csv(train_parameters_label_file, header=None)
     #test_features = pd.read_csv(test_parameters_features_file, header=None)
     #test_labels = pd.read_csv(test_parameters_label_file, header=None)
@@ -841,7 +863,6 @@ def w_repair_parameters(answer, processed_task, nums):
    
     global parameters_prediction
     global repair_parameters_iteration
-    global mode
     parameters_names = read_parameters_names() 
     i = repair_parameters_iteration
     replic = ""
@@ -901,7 +922,7 @@ def save_defining_parameters(processed_task, task_features, predictions):
 
 #Read parameters of the task (same for all tasks from the theme)
 def read_classification_names(): 
-    filename = generate_files_name(classification_names_file)    
+    filename = generate_files_name(classification_names_file)   
     cla_file = open(filename, 'r')
     content = cla_file.read()
     list_of_names = content.split('\n')
@@ -917,8 +938,8 @@ def read_classification_names():
 
 #Save parameters of the task (same for all tasks from the theme)
 def save_classification_names(list_of_parameters_names):     
-    filename = generate_files_name(classification_names_file)  
-    cla_file = open(classification_names_file, 'w')
+    filename = generate_files_name(classification_names_file) 
+    cla_file = open(filename, 'w')
     for parameter in list_of_parameters_names:
         cla_file.write(parameter + '\n')
     cla_file.close()
@@ -929,7 +950,7 @@ def save_classification_names(list_of_parameters_names):
 
 def w_sug_classification_names():    
     output = []
-    output = "Я правильно понимаю, что задачи бывают следующих типов: \n"
+    output = "Правда ли, что задачи бывают следующих типов: \n"
     names = read_classification_names()
     for i in range(len(names)):
         if (i != len(names) - 1):
@@ -940,16 +961,6 @@ def w_sug_classification_names():
     return output
     
         
-def w_repair_classification_names_done(answer): 
-    
-    new_names = answer.split(";")
-    for i in range(len(new_names)):        
-        new_names[i] = process_answer_with_comma(new_names[i])
-        
-    
-    save_classification_names(new_names)
-
-
 # Defining task type
 
 # In[92]:
@@ -989,19 +1000,19 @@ def extract_classification_features(processed_task, parameters_features, paramet
 # In[93]:
 
 def prepare_data_for_classification_training():
-    parameters_names_file = '/res/tasks_types.txt'
+    parameters_names_file = 'tasks_types'
     parameters_names_file = generate_files_name(parameters_names_file)
 
-    #test_classification_label_file = "/res/test_classification_labels.txt"
+    #test_classification_label_file = "/res/test_classification_labels"
     #test_classification_label_file = generate_files_name(test_classification_label_file)
 
-    #test_classification_features_file = "/res/test_classification_features.txt"
+    #test_classification_features_file = "/res/test_classification_features"
     #test_classification_features_file = generate_files_name(test_classification_features_file)
 
-    train_classification_label_file = "/res/train_classification_labels.txt"
+    train_classification_label_file = "train_classification_labels"
     train_classification_label_file = generate_files_name(train_classification_label_file)
 
-    train_classification_features_file = "/res/train_classification_features.txt" 
+    train_classification_features_file = "train_classification_features" 
     train_classification_features_file = generate_files_name(train_classification_features_file)
     
     train_features = pd.read_csv(train_classification_features_file, header=None)
@@ -1092,17 +1103,17 @@ def extract_answer_features(task, dp_labels):
 # In[99]:
 
 def prepare_data_for_answer_training(task_type):    
-    folder = "/res/"    
-    #test_answer_label_file = folder + str(task_type) + "/test_answer_labels.txt"
+    folder = ""    
+    #test_answer_label_file = folder + str(task_type) + "/test_answer_labels"
     #test_answer_label_file = generate_files_name(test_answer_label_file)
 
-    #test_answer_features_file = folder + str(task_type) + "/test_answer_features.txt"
+    #test_answer_features_file = folder + str(task_type) + "/test_answer_features"
     #test_answer_features_file = generate_files_name(test_answer_features_file)
 
-    train_answer_label_file = folder + str(task_type) + "/train_answer_labels.txt"
+    train_answer_label_file = folder + str(task_type) + "/train_answer_labels"
     train_answer_label_file = generate_files_name(train_answer_label_file)
 
-    train_answer_features_file = folder + str(task_type) + "/train_answer_features.txt" 
+    train_answer_features_file = folder + str(task_type) + "/train_answer_features" 
     train_answer_features_file = generate_files_name(train_answer_features_file)
 
     train_features = pd.read_csv(train_answer_features_file, header=None)
@@ -1119,16 +1130,9 @@ def prepare_data_for_answer_training(task_type):
 
 def ans_train(task_type):
     data_train, label_train = prepare_data_for_answer_training(task_type)
-    label_train = np.ravel(label_train)
-
-    max_sc_ann = 0
-    ls1 = 8 #calculated by several experiments
-    ls2 = 10
-
-    ann_clf = MLPRegressor(solver='lbfgs', alpha=1e-5,hidden_layer_sizes=(ls1, ls2), random_state=1)
-    ann_clf.fit(data_train, label_train) 
-    
-    return ann_clf
+    clf = DecisionTreeRegressor()
+    clf.fit(data_train, label_train)
+    return clf
 
 
 # In[109]:
@@ -1156,10 +1160,10 @@ def w_repair_answer():
 # In[103]:
 
 def save_answer(task_type, ans_features, answer):
-    folder = "/res/"
-    answer_features_file = folder + str(task_type) + "/train_answer_features.txt" 
+    folder = ""
+    answer_features_file = folder + str(task_type) + "/train_answer_features" 
        
-    answer_label_file = folder + str(task_type) + "/train_answer_labels.txt"
+    answer_label_file = folder + str(task_type) + "/train_answer_labels"
 
     f = str(ans_features)
     f = f[1:-1]
@@ -1204,80 +1208,84 @@ def nothing_answer():
 
 
 # In[ ]:
+modes = {}
+last_answer = ""
 
-def generate_answer(last_answer):
-    print(last_answer)
-    print(mode)
-    global mode, prediction
+def generate_answer(last_answer, user):    
+    global modes, prediction
     global parameters_names, classification_names
     global task, nums, dp_clf, cl_clf, ans_clf
     global parameters, parameters_prediction, classification, answer
     global classification_features, answer_features, parameters_features
     global repair_parameters_iteration
+    global user_id
+    
+    if user not in modes.keys():
+        modes.update({user: "sug_parameters_name"})
+    
+    user_id = user
     
     if (last_answer == sug_parameters_replic):
-        mode = "sug_parameters_name"
+        modes[user] = "sug_parameters_name"
         
 ##### Parameters names ######
         
-    if (mode == "sug_parameters_name"):
+    if ( modes[user] == "sug_parameters_name"):
         parameters_names = read_parameters_names()
         if (len(parameters_names) != 0):
-            mode = "ans_parameters_name"        
+            modes[user] = "ans_parameters_name"        
             return w_sug_parameters_names()
         else:
-            mode = "repair_parameters_name"
+            modes[user] = "repair_parameters_name"
             return w_repair_parameters_name()
     
-    if (mode == "ans_parameters_name"):
+    if (modes[user] == "ans_parameters_name"):
         ans = w_ans(last_answer)
         if (ans == "yes"):
-            mode = "ans_classification_names"
+            modes[user] = "ans_classification_names"
             return yes_answer() + "\n" + w_sug_classification_names()  
         if (ans == "no"):
-            mode = "repair_parameters_name"
+            modes[user] = "repair_parameters_name"
             return w_repair_parameters_name()
         if (ans == "nothing"):
             return nothing_answer()
         
-    if (mode == "repair_parameters_name"):
+    if (modes[user] == "repair_parameters_name"):
         #mode = "sug_classification_names"
         classification_names = read_classification_names()
         if (len(classification_names) != 0):
-            
-            mode = "ans_classification_names"        
-            return w_repairing_done(last_answer) + "\n" + w_sug_classification_names()
+            modes[user] = "ans_classification_names"        
+            return w_repair_parameters_done(last_answer) + "\n" + w_sug_classification_names()
         else:
-        
-            mode = "repair_classification_names"
-            return w_repairing_done(last_answer) + "\n" + w_repair_classification_name()
+            modes[user] = "repair_classification_names"
+            return w_repair_parameters_done(last_answer) + "\n" + w_repair_classification_names()
         
          
     
     
 ##### Classification names ######     
     
-    if (mode == "ans_classification_names"):
+    if (modes[user] == "ans_classification_names"):
         ans = w_ans(last_answer)
         if (ans == "yes"):
         
-            mode = "sug_task"
+            modes[user] = "sug_task"
             return yes_answer() + "\n" + w_sug_task()
         if (ans == "no"):
-            mode = "repair_classification_names"
+            modes[user] = "repair_classification_names"
             return w_repair_classification_names()
         if (ans == "nothing"):
             return nothing_answer()
         
-    if (mode == "repair_classification_names"):
-        mode = "sug_task"
+    if (modes[user] == "repair_classification_names"):
+        modes[user] = "sug_task"
         return w_repair_classification_names_done(last_answer) + "\n" + w_sug_task()
     
     
 ##### Task ######
     
     
-    if (mode == "sug_task"):
+    if (modes[user] == "sug_task"):
         task = replace_word_with_numbers(last_answer)
         res, replic = w_repair_task(last_answer)
         save_task(task, processed_tasks_file, "\n#\n")
@@ -1285,86 +1293,79 @@ def generate_answer(last_answer):
             nums = extract_numbers(task)
             dp_clf = defining_parameters_train()
             replic_par, parameters_features, parameters_prediction = w_sug_parameters(dp_clf, task)
-            mode = "sug_parameters"
+            modes[user] = "sug_parameters"
         return replic + "\n" + replic_par
     
 ##### Defining parameters ######
     
-    if (mode == "sug_parameters"):        
+    if (modes[user] == "sug_parameters"):        
         ans = w_ans(last_answer)
         if (ans == "yes"):
-            mode = "ans_classification" #todo
+            modes[user] = "ans_classification" #todo
             save_defining_parameters(task, parameters_features, parameters_prediction)
             replic, classification_features, classification = w_sug_classification(task, parameters_features, parameters_prediction)
             return yes_answer() + "\n" + replic #todo
         if (ans == "no"):
-            mode = "repair_parameters" #todo
+            modes[user] = "repair_parameters" #todo
             repair_parameters_iteration = 0
             return w_repair_parameters(last_answer, task, nums)[1] #todo
         if (ans == "nothing"):
             return nothing_answer()
         
-    if (mode == "repair_parameters"):
+    if (modes[user] == "repair_parameters"):
         res, ans = w_repair_parameters(last_answer, task, nums)
         if (res == -1):
-            mode = "sug_task"
+            modes[user] = "sug_task"
             return ans
         if (res == 1):
             save_defining_parameters(task, parameters_features, parameters_prediction)
-            mode = "ans_classification"
+            modes[user] = "ans_classification"
             replic, classification_features, classification = w_sug_classification(task, parameters_features, parameters_prediction)
             return replic 
         if (res == 0): 
             return ans
         
 ##### Classification ######
-    if (mode == "ans_classification"):
+    if (modes[user] == "ans_classification"):
         ans = w_ans(last_answer)
         if (ans == "yes"):
             #print("Hello")
-            mode = "ans_answer"
+            modes[user] = "ans_answer"
             replic, answer_features, answer = w_sug_answer(task, parameters_prediction)            
             return yes_answer() + "\n" + replic
         if (ans == "no"):
-            mode = "repair_classification"
+            modes[user] = "repair_classification"
             return w_repair_classification()
         if (ans == "nothing"):
             return nothing_answer()
         
-    if (mode == "repair_classification"):
+    if (modes[user] == "repair_classification"):
             classification = int(last_answer)
             save_classification(task, classification_features, classification)
             replic, answer_features, answer = w_sug_answer(task, parameters_prediction)
-            mode = "ans_answer"
+            modes[user] = "ans_answer"
             return replic
         
 ##### Answer ######
-    if (mode == "ans_answer"):
+    if (modes[user] == "ans_answer"):
         ans = w_ans(last_answer)
         if (ans == "yes"):
-            mode = "sug_task"
+            modes[user] = "sug_task"
             return yes_answer() + "\n" + w_sug_task()            
         if (ans == "no"):
-            mode = "repair_answer"
+            modes[user] = "repair_answer"
             return w_repair_answer()
         if (ans == "nothing"):
             return nothing_answer()
         
-    if (mode == "repair_answer"):
+    if (modes[user] == "repair_answer"):
             answer = int(last_answer)
             save_answer(classification, answer_features, answer)
-            mode = "sug_task"
-            return yes_answer() + "\n" + w_sug_task()  
+            modes[user] = "sug_task"
+            return w_sug_task()  
 
-mode = "sug_parameters_name"
-last_answer = ""
 
-def web_dialog():
-    global last_answer
-    print(last_answer)
-    while last_answer != "exit":
-        print(generate_answer())
-        last_answer = input()
+
 
 
 
