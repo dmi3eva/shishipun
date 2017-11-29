@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from chat.models import User
 import os
-from chat.for_web import generate_answer
+from chat.problem_solving import generate_answer
 
 user_id = ''
 user_dialog = {}
