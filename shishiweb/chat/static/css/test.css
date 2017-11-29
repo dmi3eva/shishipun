@@ -33,3 +33,7 @@ table {
     color: #64984d;   
     font-weight: bold;
  }
+ 
+.but_log_out {
+    margin: -7% 0 0 80%;         
+}

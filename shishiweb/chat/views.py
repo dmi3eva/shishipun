@@ -5,12 +5,13 @@ from chat.for_web import generate_answer
 
 user_id = ''
 user_dialog = {}
-theory_dialog = []
+theory_user_dialog = {}
 file =''
 last_answer = ""
 last_answers ={}
+theory_last_answers ={}
 tests = {}
-
+    
 class Mes:
    source =''
    text = ''
@@ -24,27 +25,32 @@ class Task_mark:
    def __init__(self, txt, mrk):
        self.text = txt
        self.mark = mrk
-       
+
+def logout(request):
+    user_dialog.update({request.session['member_id']:[]})
+    request.session['member_id'] = ''
+    return render(request, "chat/auth.html")      
+
 def auth(request):
     return render(request, 'chat/auth.html')
     
 def auth_check(request):
-    global user_id, dialog
+    global user_id, dialog, theory_dialog
     log = request.POST.get('login', '')
     pas = request.POST.get('password', '')
     print(log, pas)
     users = User.objects.all()
+    print(users)
     for user in users:
         if (user.login == log and user.password == pas):
             request.session['member_id'] = user.id
-            print(user.id)
             user_dialog.update({request.session['member_id']:[]})
+            theory_user_dialog.update({request.session['member_id']:[]})
             return render(request, 'chat/choose_type.html')
     return render(request, 'chat/auth.html')
 
 def message_sent(request):
     global user_id
-    print(request.session['member_id'])
     if request.session['member_id'] == '':
         return render(request, 'chat/auth.html')
     else:
@@ -84,7 +90,7 @@ def choose_type(request):
     if request.session['member_id'] == '':
         return render(request, 'chat/auth.html')
     return render(request, 'chat/choose_type.html')
-
+"""
 def theory_file_upload(request):
     if request.session['member_id'] == '':
         return render(request, 'chat/auth.html')
@@ -111,24 +117,47 @@ def theory_file(request):
         file = "Пожалуйста, загрузите файл"
         c = {"file": file}
         return render(request, 'chat/theory_file_upload.html', c)
+"""     
+
+def theory_message_sent(request):
+    global user_id
+    if request.session['member_id'] == '':
+        return render(request, 'chat/auth.html')
+    else:
+        user = User.objects.get(id = request.session['member_id'])
+        text_a = "Привет, " + str(user.name) + "!"
+        mes_a = Mes('bot', text_a)
+        theory_dialog = theory_user_dialog.get(request.session['member_id'])
+        theory_dialog.append(mes_a)
+        theory_user_dialog.update({request.session['member_id']:theory_dialog})
+        c = {"mes": theory_dialog}
+        return render(request, 'chat/theory_message_list.html', c)
         
 def theory_message_list(request):
     if request.session['member_id'] == '':
         return render(request, 'chat/auth.html')
-        
-    text_q = request.GET['theory_chat_label']    
+    
+    theory_dialog = theory_user_dialog.get(request.session['member_id'])
+    
+    global theory_last_answers, user_id
+    
+    text_q = request.GET['theory_chat_label']
+    theory_last_answers.update({request.session['member_id']:text_q})
+    
     mes_q = Mes('user', text_q)
     theory_dialog.append(mes_q)
+    
+    user_id = request.session['member_id']
+    theory_last_answer = theory_last_answers[request.session['member_id']]
 
     text_a = "answer"
     mes_a = Mes('bot', text_a)
     theory_dialog.append(mes_a)
-    if file != None:
-        c = {"file": file, "mes": theory_dialog}
-    else:
-        c = {"mes": theory_dialog}
+    
+    theory_user_dialog.update({request.session['member_id']:theory_dialog})
+    c = {"mes": theory_dialog}
     return render(request, 'chat/theory_message_list.html', c)
-
+    
 def rating(request):
     users = User.objects.order_by('-bot_mark')
     c = {"users": users}

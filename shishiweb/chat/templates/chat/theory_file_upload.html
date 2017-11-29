@@ -6,6 +6,7 @@
     </head>
     <body>
         <a href="{% url 'choosing_type' %}"> <img class="but_back" src="{% static 'images/button_back.png' %}" width="8%"/></a>
+        <a href="{% url 'logout' %}"> <img class="but_log_out" src="{% static 'images/button_log_out.png' %}" width="10%"/></a>
         <p> Привет! Пожалуйста, загрузи файл с теорией, которую я должен изучить.</p>
         <form enctype="multipart/form-data" action="/theory_file/" method="post">
             {% csrf_token %}
