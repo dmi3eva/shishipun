@@ -7,8 +7,9 @@ user_id = ''
 user_dialog = {}
 theory_dialog = []
 file =''
-mode="sug_parameters_name"
 last_answer = ""
+last_answers ={}
+tests = {}
 
 class Mes:
    source =''
@@ -17,30 +18,38 @@ class Mes:
        self.source = src
        self.text = txt
 
+class Task_mark:
+   text = ''
+   mark = 0
+   def __init__(self, txt, mrk):
+       self.text = txt
+       self.mark = mrk
+       
 def auth(request):
     return render(request, 'chat/auth.html')
     
 def auth_check(request):
     global user_id, dialog
-    print(user_id)
     log = request.POST.get('login', '')
     pas = request.POST.get('password', '')
+    print(log, pas)
     users = User.objects.all()
     for user in users:
         if (user.login == log and user.password == pas):
             request.session['member_id'] = user.id
-            print(request.session['member_id'])
+            print(user.id)
             user_dialog.update({request.session['member_id']:[]})
             return render(request, 'chat/choose_type.html')
     return render(request, 'chat/auth.html')
-    
+
 def message_sent(request):
     global user_id
+    print(request.session['member_id'])
     if request.session['member_id'] == '':
         return render(request, 'chat/auth.html')
     else:
         user = User.objects.get(id = request.session['member_id'])
-        text_a = "Привет, " + str(user.login) + "!"
+        text_a = "Привет, " + str(user.name) + "!"
         mes_a = Mes('bot', text_a)
         dialog = user_dialog.get(request.session['member_id'])
         dialog.append(mes_a)
@@ -52,17 +61,21 @@ def message_list(request):
     if request.session['member_id'] == '':
         return render(request, 'chat/auth.html')
     dialog = user_dialog.get(request.session['member_id'])
-    global last_answer, mode
-    text_q = request.GET['chat_label']
-    last_answer = text_q;
+    global last_answer, user_id,last_answers
     
-    print(request.session['member_id'])
+    text_q = request.GET['chat_label']
+    last_answers.update({request.session['member_id']:text_q})
+    
     mes_q = Mes('user', text_q)
     dialog.append(mes_q)
+    
+    user_id = request.session['member_id']
+    last_answer = last_answers[request.session['member_id']]
 
-    text_a = generate_answer(last_answer)
+    text_a = generate_answer(last_answer, user_id)
     mes_a = Mes('bot', text_a)
     dialog.append(mes_a)
+    
     user_dialog.update({request.session['member_id']:dialog})
     c = {"mes": dialog}
     return render(request, 'chat/message_list.html', c)
@@ -115,3 +128,24 @@ def theory_message_list(request):
     else:
         c = {"mes": theory_dialog}
     return render(request, 'chat/theory_message_list.html', c)
+
+def rating(request):
+    users = User.objects.order_by('-bot_mark')
+    c = {"users": users}
+    return render(request, 'chat/rating.html', c)
+    
+def test(request):
+    global tasks
+    tasks_marks = []
+    task_mark = Task_mark('Сколько существует способов выбрать 1 час из 24, чтобы поспать?', 1)
+    tasks_marks.append(task_mark)
+    
+    task_mark = Task_mark('Сколько существует способов выбрать несколько часов из 24, чтобы поспать?', 0)
+    tasks_marks.append(task_mark)
+    
+    tests.update({request.session['member_id']:tasks_marks})
+    
+    tasks = tests[request.session['member_id']]
+    
+    c = {"tasks": tasks}
+    return render(request, 'chat/test.html', c)

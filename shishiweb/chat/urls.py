@@ -8,7 +8,9 @@ urlpatterns = [
     url('^chat/$', views.message_sent, name='message_sent'),
     url(r'sent', views.message_list, name='message_list'),
     url('type/$', views.choose_type, name='choosing_type'),
-    url('auth/$', views.auth),
+    url('rating/$', views.rating, name='rating'),
+    url('test/$', views.test, name='test'),
+    url('auth', views.auth),
     url('auth_check/$', views.auth_check),
     url('^$', views.auth),
 ]
