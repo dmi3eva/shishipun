@@ -25,7 +25,13 @@ class Task_mark:
    def __init__(self, txt, mrk):
        self.text = txt
        self.mark = mrk
-
+       
+def check_session(request):
+    if 'member_id' not in request.session:
+        return render(request, "chat/auth.html")
+    else:
+        return 0
+    
 def logout(request):
     user_dialog.update({request.session['member_id']:[]})
     request.session['member_id'] = ''
@@ -38,9 +44,7 @@ def auth_check(request):
     global user_id, dialog, theory_dialog
     log = request.POST.get('login', '')
     pas = request.POST.get('password', '')
-    print(log, pas)
     users = User.objects.all()
-    print(users)
     for user in users:
         if (user.login == log and user.password == pas):
             request.session['member_id'] = user.id
@@ -50,6 +54,8 @@ def auth_check(request):
     return render(request, 'chat/auth.html')
 
 def message_sent(request):
+    if 'member_id' not in request.session:
+        request.session['member_id'] = ''
     global user_id
     if request.session['member_id'] == '':
         return render(request, 'chat/auth.html')
@@ -58,15 +64,21 @@ def message_sent(request):
         text_a = "Привет, " + str(user.name) + "!"
         mes_a = Mes('bot', text_a)
         dialog = user_dialog.get(request.session['member_id'])
+        if dialog is None:
+            dialog = []
         dialog.append(mes_a)
         user_dialog.update({request.session['member_id']:dialog})
         c = {"mes": dialog}
         return render(request, 'chat/message_list.html', c)
 
 def message_list(request):
+    if 'member_id' not in request.session:
+        request.session['member_id'] = ''
     if request.session['member_id'] == '':
         return render(request, 'chat/auth.html')
     dialog = user_dialog.get(request.session['member_id'])
+    if dialog is None:
+            dialog = []
     global last_answer, user_id,last_answers
     
     text_q = request.GET['chat_label']
@@ -87,8 +99,12 @@ def message_list(request):
     return render(request, 'chat/message_list.html', c)
 
 def choose_type(request):
+    if 'member_id' not in request.session:
+        request.session['member_id'] = ''
     if request.session['member_id'] == '':
         return render(request, 'chat/auth.html')
+    user_dialog.update({request.session['member_id']:[]})
+    theory_user_dialog.update({request.session['member_id']:[]})
     return render(request, 'chat/choose_type.html')
 """
 def theory_file_upload(request):
@@ -121,6 +137,9 @@ def theory_file(request):
 
 def theory_message_sent(request):
     global user_id
+    theory_dialog = []
+    if 'member_id' not in request.session:
+        request.session['member_id'] = ''
     if request.session['member_id'] == '':
         return render(request, 'chat/auth.html')
     else:
@@ -128,17 +147,24 @@ def theory_message_sent(request):
         text_a = "Привет, " + str(user.name) + "!"
         mes_a = Mes('bot', text_a)
         theory_dialog = theory_user_dialog.get(request.session['member_id'])
+        if theory_dialog is None:
+            theory_dialog = []
         theory_dialog.append(mes_a)
         theory_user_dialog.update({request.session['member_id']:theory_dialog})
         c = {"mes": theory_dialog}
         return render(request, 'chat/theory_message_list.html', c)
         
 def theory_message_list(request):
+    theory_dialog = []
+    if 'member_id' not in request.session:
+        request.session['member_id'] = ''
     if request.session['member_id'] == '':
         return render(request, 'chat/auth.html')
     
     theory_dialog = theory_user_dialog.get(request.session['member_id'])
-    
+    if theory_dialog is None:
+            theory_dialog = []
+
     global theory_last_answers, user_id
     
     text_q = request.GET['theory_chat_label']
@@ -159,12 +185,20 @@ def theory_message_list(request):
     return render(request, 'chat/theory_message_list.html', c)
     
 def rating(request):
+    if 'member_id' not in request.session:
+        request.session['member_id'] = ''
+    if request.session['member_id'] == '':
+        return render(request, 'chat/auth.html')
     users = User.objects.order_by('-bot_mark')
     c = {"users": users}
     return render(request, 'chat/rating.html', c)
     
 def test(request):
     global tasks
+    if 'member_id' not in request.session:
+        request.session['member_id'] = ''
+    if request.session['member_id'] == '':
+        return render(request, 'chat/auth.html')
     tasks_marks = []
     task_mark = Task_mark('Сколько существует способов выбрать 1 час из 24, чтобы поспать?', 1)
     tasks_marks.append(task_mark)
