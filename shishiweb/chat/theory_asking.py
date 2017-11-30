@@ -93,9 +93,11 @@ def participle(sentence, word):
     position = words.index(word)
     ind = position + 1
     if (ind < len(words)):
+        print("   " + words[ind] + " POS = " + morph.parse(words[ind])[0].tag.POS)
         analysis = morph.parse(words[ind])[0].tag.POS
         if (analysis == "PRTS"):
             return words[ind]
+    
     return ""
 
 def predicate(sentence, word):
@@ -274,16 +276,26 @@ def private_noun_question(sentence, noun):
     subordinator = subordinate(sentence, noun)
     
     if (noun not in subordinators):
+        print("Here")
+        print(predicator)
+        print("prt " + participle(sentence, predicator))
         question += adjective(sentence, subordinator) + " " + descriptive(sentence, subordinator, noun) + " " + adverb(sentence, predicator) + " " + predicator + " " + participle(sentence, predicator)
     else:
         if (morph.parse(noun[0])[0].tag.animacy == "anim"):
             prts = morph.parse(participle(sentence, predicator))[0]
+            prts_norm = ""
+            if (participle(sentence, predicator) != ""):
+                prts_norm = prts.inflect({'neut'}).word
             vrb = morph.parse(predicator)[0]
-            question += adverb(sentence, predicator) + " " + vrb.inflect({'masc'}).word + " " + prts.inflect({'masc'}).word
+            question += adverb(sentence, predicator) + " " + vrb.inflect({'masc'}).word + " " + prts_norm
         else:
             prts = morph.parse(participle(sentence, predicator))[0]
             vrb = morph.parse(predicator)[0]
-            question += adverb(sentence, predicator) + " " + vrb.inflect({'neut'}).word + " " + prts.inflect({'neut'}).word
+            prts_norm = ""
+            print("hello " + participle(sentence, predicator))
+            if (participle(sentence, predicator) != ""):
+                prts_norm = prts.inflect({'neut'}).word
+            question += adverb(sentence, predicator) + " " + vrb.inflect({'neut'}).word + " " + prts_norm
     #add addendum
     addendums = all_addendums(sentence)  
     
@@ -338,7 +350,7 @@ def too_many_info_replic():
     return "Я еще слишком маленький,чтобы столько запомнить сразу. Буду рад, если вы будете рассказывать мне по одному-два предложения."                                            
     
 def short_answer_reaction_replic():
-    return "=))) Расскажи мне что-нибудь или спроси меня о чём-нибудь"
+    return "=))) Расскажи мне что-нибудь еще или спроси меня о чём-нибудь."
 
 def  not_found_question_replic():
     "Очень интересно! Расскажите что-нибудь ещё!"
@@ -445,6 +457,7 @@ def find_question(statement):
     priority = find_priority(statement)
     knowledge = read_knowledge()
     facts = set(extract_normal_nouns(knowledge))
+    print(facts)
     for i in range(len(priority)):
         candidate = priority[i]
         words = extract_nouns(candidate)
@@ -481,7 +494,7 @@ def generate_replic(last_answer, user):
             return too_many_info_replic()
         else:
             words = last_answer.split(" ")
-            save_knowledge(last_answer)
+            #save_knowledge(last_answer)
             if (len(words) < 4):
                 return short_answer_reaction_replic()
             

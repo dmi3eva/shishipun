@@ -8,7 +8,7 @@
         <a href="{% url 'choosing_type' %}"> <img class="but_back" src="{% static 'images/button_back.png' %}" width="8%"/></a>
         <a href="{% url 'logout' %}"> <img class="but_log_out" src="{% static 'images/button_log_out.png' %}" width="10%"/></a>
         <form action="/sent" method="get">
-            <input type="text" name="chat_label">
+            <input type="text" autocomplete="off" name="chat_label">
             <input type="submit" value="Отправить">
         </form>
     </body>
