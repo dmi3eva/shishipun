@@ -2,6 +2,7 @@ from django.shortcuts import render
 from chat.models import User
 import os
 from chat.problem_solving import generate_answer
+from chat.theory_asking import generate_replic
 
 user_id = ''
 user_dialog = {}
@@ -125,7 +126,7 @@ def theory_message_sent(request):
         return render(request, 'chat/auth.html')
     else:
         user = User.objects.get(id = request.session['member_id'])
-        text_a = "Привет, " + str(user.name) + "!"
+        text_a = "Привет, " + str(user.name) + "! Расскажи мне что-нибудь о том, что мы будем изучать. Если же ты, наоборот, хочешь проверить мои знания, просто обратись ко мне по имени. Например, \"Шишипун, что такое комбинаторика?\""
         mes_a = Mes('bot', text_a)
         theory_dialog = theory_user_dialog.get(request.session['member_id'])
         theory_dialog.append(mes_a)
@@ -147,10 +148,11 @@ def theory_message_list(request):
     mes_q = Mes('user', text_q)
     theory_dialog.append(mes_q)
     
+       
     user_id = request.session['member_id']
     theory_last_answer = theory_last_answers[request.session['member_id']]
 
-    text_a = "answer"
+    text_a = generate_replic(theory_last_answer, user_id)
     mes_a = Mes('bot', text_a)
     theory_dialog.append(mes_a)
     
@@ -171,6 +173,8 @@ def test(request):
     
     task_mark = Task_mark('Сколько существует способов выбрать несколько часов из 24, чтобы поспать?', 0)
     tasks_marks.append(task_mark)
+    
+    
     
     tests.update({request.session['member_id']:tasks_marks})
     
