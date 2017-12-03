@@ -114,6 +114,7 @@ def choose_type(request):
         return render(request, 'chat/auth.html')
     user_dialog.update({request.session['member_id']:[]})
     theory_user_dialog.update({request.session['member_id']:[]})
+    test_theory_user_dialog.update({request.session['member_id']:[]})
     return render(request, 'chat/choose_type.html')
 """
 def theory_file_upload(request):
@@ -199,6 +200,7 @@ def rating(request):
         request.session['member_id'] = ''
     if request.session['member_id'] == '':
         return render(request, 'chat/auth.html')
+    test_theory_user_dialog.update({request.session['member_id']:[]})
     users = User.objects.order_by('-bot_mark')
     c = {"users": users}
     return render(request, 'chat/rating.html', c)
