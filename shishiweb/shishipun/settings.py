@@ -26,7 +26,7 @@ SESSION_EXPIRE_BROWSER_CLOSE = True
 SECRET_KEY = '#n+sw4l*r$)o3jjxl09((7=gp$2*7z07=v)q#7xhdohqput*1)'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['127.0.0.1', 'Shishipun.pythonanywhere.com']
 
