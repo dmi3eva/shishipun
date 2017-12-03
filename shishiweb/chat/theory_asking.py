@@ -474,7 +474,7 @@ modes = {}
 
 
 
-def generate_replic(last_answer, user): 
+def generate_replic(last_answer, user, q_a): 
     global modes, user_id
     user_id = user
     if user not in modes.keys():
@@ -483,7 +483,7 @@ def generate_replic(last_answer, user):
     answer = remove_punctuation(answer)
     answer_words = answer.split(" ")
     
-    if ("шишипун" in answer_words):
+    if (q_a == 1):
         modes[user] = "answer"
     if (modes[user] == "answer"):
         modes[user] = "question"

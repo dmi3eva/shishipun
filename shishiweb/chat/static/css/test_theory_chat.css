@@ -3,6 +3,7 @@ body {
     background-repeat: repeat-y;
     background-size: cover;
 }
+
 .but_log_out {
     margin: -7% 0 0 80%;         
 }
@@ -11,8 +12,10 @@ body {
     margin: 0 0 0 0;
 }
 
-input[type="text"] {
+textarea {
     width: 30%;
-    margin: 20% 0 0 31%;
+    margin: 20% 0 10% 30%;
+    overflow-y: scroll;
+    overflow-x: hidden;
 }
 
