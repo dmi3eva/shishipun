@@ -7,6 +7,7 @@
     <body>
         <a href="{% url 'choosing_type' %}"> <img class="but_back" src="{% static 'images/button_back.png' %}" width="8%"/></a>
         <a href="{% url 'logout' %}"> <img class="but_log_out" src="{% static 'images/button_log_out.png' %}" width="10%"/></a>
+        <a href="{% url 'theory_test_chat' %}"> <img class="but_test_theory" src="{% static 'images/button_test_theory.png' %}" width="17%"/></a>
         <div class="table_dialog">
             <table>
                 {% for user in users %}

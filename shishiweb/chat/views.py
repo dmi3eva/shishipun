@@ -7,10 +7,12 @@ from chat.theory_asking import generate_replic
 user_id = ''
 user_dialog = {}
 theory_user_dialog = {}
+test_theory_user_dialog = {}
 file =''
 last_answer = ""
 last_answers ={}
 theory_last_answers ={}
+test_theory_last_answers ={}
 tests = {}
     
 class Mes:
@@ -34,14 +36,19 @@ def check_session(request):
         return 0
     
 def logout(request):
-    user_dialog.update({request.session['member_id']:[]})
-    request.session['member_id'] = ''
+    if 'member_id' not in request.session:
+        request.session['member_id'] = ''
+    else:
+        user_dialog.update({request.session['member_id']:[]})
+        request.session['member_id'] = ''
     return render(request, "chat/auth.html")      
 
 def auth(request):
     return render(request, 'chat/auth.html')
     
 def auth_check(request):
+    if 'member_id' not in request.session:
+        request.session['member_id'] = ''
     global user_id, dialog, theory_dialog
     log = request.POST.get('login', '')
     pas = request.POST.get('password', '')
@@ -51,6 +58,7 @@ def auth_check(request):
             request.session['member_id'] = user.id
             user_dialog.update({request.session['member_id']:[]})
             theory_user_dialog.update({request.session['member_id']:[]})
+            test_theory_user_dialog.update({request.session['member_id']:[]})
             return render(request, 'chat/choose_type.html')
     return render(request, 'chat/auth.html')
 
@@ -145,7 +153,7 @@ def theory_message_sent(request):
         return render(request, 'chat/auth.html')
     else:
         user = User.objects.get(id = request.session['member_id'])
-        text_a = "Привет, " + str(user.name) + "! Расскажи мне что-нибудь о том, что мы будем изучать. Если же ты, наоборот, хочешь проверить мои знания, просто обратись ко мне по имени. Например, \"Шишипун, что такое комбинаторика?\""
+        text_a = "Привет, " + str(user.name) + "! Расскажи мне что-нибудь о том, что мы будем изучать."
         mes_a = Mes('bot', text_a)
         theory_dialog = theory_user_dialog.get(request.session['member_id'])
         if theory_dialog is None:
@@ -216,3 +224,56 @@ def test(request):
     
     c = {"tasks": tasks}
     return render(request, 'chat/test.html', c)
+
+def test_chat(request):
+    global user_id
+    theory_test_dialog = []
+    if 'member_id' not in request.session:
+        request.session['member_id'] = ''
+    if request.session['member_id'] == '':
+        return render(request, 'chat/auth.html')
+
+    user = User.objects.get(id = request.session['member_id'])
+    text_a = "Привет, " + str(user.name) + "!" + "Я готов пройти тестирование!"
+    mes_a = Mes('bot', text_a)
+    
+    theory_test_dialog = test_theory_user_dialog.get(request.session['member_id'])
+    if theory_test_dialog is None:
+        theory_test_dialog = []
+    theory_test_dialog.append(mes_a)
+    print(theory_test_dialog)
+    test_theory_user_dialog.update({request.session['member_id']:theory_test_dialog})
+    c = {"mes": theory_test_dialog}
+    return render(request, 'chat/test_theory_message_list.html', c)
+        
+def test_chat_sent(request):
+    theory_test_dialog = []
+    if 'member_id' not in request.session:
+        request.session['member_id'] = ''
+    if request.session['member_id'] == '':
+        return render(request, 'chat/auth.html')
+    
+    theory_test_dialog = test_theory_user_dialog.get(request.session['member_id'])
+    if theory_test_dialog is None:
+            theory_test_dialog = []
+
+    global test_theory_last_answers, user_id
+    
+    text_q = request.GET['test_theory_chat_label']
+    print(text_q)
+    test_theory_last_answers.update({request.session['member_id']:text_q})
+    
+    mes_q = Mes('user', text_q)
+    theory_test_dialog.append(mes_q)
+    
+       
+    user_id = request.session['member_id']
+    test_theory_last_answer = test_theory_last_answers[request.session['member_id']]
+
+    text_a = generate_replic(test_theory_last_answer, user_id)
+    mes_a = Mes('bot', text_a)
+    theory_test_dialog.append(mes_a)
+    
+    test_theory_user_dialog.update({request.session['member_id']:theory_test_dialog})
+    c = {"mes": theory_test_dialog}
+    return render(request, 'chat/test_theory_message_list.html', c)
