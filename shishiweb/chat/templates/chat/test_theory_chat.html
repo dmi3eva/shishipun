@@ -8,7 +8,7 @@
         <a href="{% url 'rating' %}"> <img class="but_back" src="{% static 'images/button_back.png' %}" width="8%"/></a>
         <a href="{% url 'logout' %}"> <img class="but_log_out" src="{% static 'images/button_log_out.png' %}" width="10%"/></a>
         <form action="/test_chat_sent" method="get">
-            <input type="text" autocomplete="off" name="test_theory_chat_label">
+            <textarea autocomplete="off" name="chat_label" rows="5"> </textarea>
             <input type="submit" value="Отправить">
         </form>
     </body>

@@ -187,7 +187,7 @@ def theory_message_list(request):
     user_id = request.session['member_id']
     theory_last_answer = theory_last_answers[request.session['member_id']]
 
-    text_a = generate_replic(theory_last_answer, user_id)
+    text_a = generate_replic(theory_last_answer, user_id, 0)
     mes_a = Mes('bot', text_a)
     theory_dialog.append(mes_a)
     
@@ -272,7 +272,7 @@ def test_chat_sent(request):
     user_id = request.session['member_id']
     test_theory_last_answer = test_theory_last_answers[request.session['member_id']]
 
-    text_a = generate_replic(test_theory_last_answer, user_id)
+    text_a = generate_replic(test_theory_last_answer, user_id, 1)
     mes_a = Mes('bot', text_a)
     theory_test_dialog.append(mes_a)
     
