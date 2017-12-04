@@ -4,6 +4,7 @@
 
 import os
 import shutil
+import random
 
 parameters_names_file = 'parameters_names'
 parameters_label_file = "train_parameters_label"
@@ -14,6 +15,29 @@ processed_tasks_file = "user_tasks"
 classification_names_file = 'tasks_types'
 classification_label_file = 'train_classification_labels'
 classification_features_file = "train_classification_features"
+
+
+def replic_randomizer(used_replics, all_replics):
+
+    
+    if (len(used_replics) == len(all_replics)):
+        used_replics[:] = []
+    random.seed(version=2)
+    number = random.randint(0, len(all_replics) - 1)   
+    
+    while (number in used_replics):
+        number = random.randint(0, len(all_replics))
+    used_replics.append(number)
+    return used_replics, all_replics[number]
+
+def replic_randomizer_without_memory(all_replics):
+    random.seed(version=2)
+    number = random.randint(0, len(all_replics) - 1)  
+    return all_replics[number]
+    
+
+def abuse_replic():
+    return "Не ругайтесь, пожалуйста! Я ещё маленький! \n"
 
 def generate_files_name(file_name):
     global user_id
@@ -42,7 +66,6 @@ def save_parameters_names(list_of_parameters_names):
     
 
 
-# In[62]:
 
 #Read parameters of the task (same for all tasks from the theme)
 def read_parameters_names():  
@@ -58,20 +81,7 @@ def read_parameters_names():
     
     
     return list_of_parameters_names
-#print(read_parameters_names())
 
-
-# In[ ]:
-
-
-
-
-# In[ ]:
-
-
-
-
-# In[63]:
 
 def intersect(l1, l2):
     return (len(list(set(l1) & set(l2))) > 0)
@@ -114,33 +124,12 @@ def w_sug_parameters_names():
             output += "   " + str(i + 1) + ". " + names[i] + "\n"
         else:
             output += "   " + str(i + 1) + ". " + names[i] + "?" + "\n"
-    output += "Все правильно?\n"
+    output += ok_replic()
     return output
-    
-def quest_parameters_names():    
-    ans = input("Введите: \n \"1\", если всё правильно \n \"0\", иначе\n")
-    while (ans != "0" & ans != "1"):
-        ans = input("Введите: \n \"1\", если всё правильно \n \"0\", иначе\n")
+
     
 
-def ans_parameters_names(): 
-    possible_yes = ["да", 'правильно', 'верно', 'согласен', 'согласна', 'yes']
-    possible_no = ["нет"]
-    ans = ""
-    while (1):
-        ans = input()
-        ans = process_answer(ans)
-        
-        ans_words = ans.split(" ")
-        if (intersect(ans_words, possible_yes)):
-            print("Ура! Я рад, что всё правильно!")
-            break
-        else:
-            if (intersect(ans_words, possible_no)):
-                repair_parameters_names()
-                break
-            else:
-                print("К сожалению, я не понял ответа. Напишите, пожалуйста, \"да\" или \"нет\".")
+
                 
             
     
@@ -161,20 +150,20 @@ def w_repair_parameters_name():
 def w_repair_classification_names():
     return "Перечислите через точку с запятой, какие типы задач бывают:\n"
 
-def w_repair_classification_names_done(ans):
+def w_repair_classification_names_done(user, ans):
     new_names = ans.split(";")
     for i in range(len(new_names)):        
         new_names[i] = process_answer_with_comma(new_names[i])   
     
     save_classification_names(new_names) 
-    return "Я запомнил!"
+    return remember_replic(user)
     
-def w_repair_parameters_done(answer):
+def w_repair_parameters_done(user, answer):
     new_names = answer.split(";")
     for i in range(len(new_names)):
         new_names[i] = process_answer_with_comma(new_names[i])
     save_parameters_names(new_names)
-    return "Я запомнил!"
+    return remember_replic(user)
 
 def read_task():
     nums = []
@@ -196,20 +185,18 @@ def w_repair_task(task):
     processed_task = replace_word_with_numbers(task)
     nums = extract_numbers(processed_task)
     if (len(nums) < len(parameters_names)):
-        return "false", "Не могу найти достаточное количество данных=( Попробуйте ввести все числительне цифрами!"
+        return "false", "Не могу найти достаточное количество данных=( Введите задачу ещё раз. Попробуйте записать все числительне цифрами!"
     else:
         return "true", "Классная задача!"
     
 
 
-# In[66]:
 
 import numpy as np
 import pymorphy2
 morph = pymorphy2.MorphAnalyzer()
 
 
-# In[67]:
 
 def save_task(task, fname, delimiter):
     filename = generate_files_name(fname)
@@ -224,7 +211,6 @@ def save_task(task, fname, delimiter):
     return 0
 
 
-# In[68]:
 
 #Словарь числительных (нужно дополнять)
 num_dict = {'несколько': 10000000007,
@@ -416,11 +402,10 @@ def extract_noun(task, parameter):
 
 
 
-# In[69]:
 
 #Чтение задач и лэйблов из файла, сохраняем их вместе с лэйблами в файл
 
-import os
+
 
 def read_task_from_file(fname):
     filename = generate_files_name(fname)
@@ -441,8 +426,6 @@ def read_task_from_file(fname):
 
 
 
-# In[71]:
-
 def word_number(text):
     while (text.find("  ") != -1):
         text = text.replace("  ", " ")
@@ -450,7 +433,7 @@ def word_number(text):
 
 def extract_sentence_with_parameter(parameter, text):
     pattern = str(parameter) #cast to string
-    sentence = ""
+   
     position = text.find(pattern)
     punctuation_marks = ".?!\n"
     left = position
@@ -505,7 +488,7 @@ def extract_sentence_position_as_letters(parameter, text):
     return float(parameterPosition) / (numberOfLetters - 1)
 
 
-# In[73]:
+
 
 def extract_text_position_as_words(parameter, text): 
     #text =  text.decode('utf-8')
@@ -527,7 +510,7 @@ def extract_sentence_position_as_words(parameter, text):
     #text =  text.decode('utf-8')
     pattern = str(parameter) #cast to string
     sentence = extract_sentence_with_parameter(parameter, text)
-    parameterPosition = sentence.find(pattern) #two bytes for russian letters 
+    #parameterPosition = sentence.find(pattern) #two bytes for russian letters 
     number_of_words = word_number(sentence)
     if (number_of_words == 0):
         print("Text is empty!")
@@ -541,13 +524,11 @@ def extract_sentence_position_as_words(parameter, text):
 
 
 
-# In[74]:
-
 def extract_numbers(text):
     #text =  text.decode('utf-8')
     numbers = "0123456789"
     parameters = []
-    ind = 0
+    
     mode = 0 #not number in process
     cur_num = ""
     for i in range(len(text)):
@@ -567,7 +548,6 @@ def extract_numbers(text):
 
 
 
-# In[75]:
 
 def k_stat(parameters, parameter):
     ordered = []
@@ -664,8 +644,6 @@ def extract_parameter_features(parameters, number, text):
     return parameter_features
 
 
-# In[77]:
-
 def extract_all_parameters_features(text):
     #text = text.decode('utf-8')
     parameters_features = []
@@ -679,8 +657,6 @@ def extract_all_parameters_features(text):
             
     return parameters_features
 
-
-# In[78]:
 
 def read_param_from_task(task):
     words = task.split()
@@ -698,28 +674,11 @@ def read_param_from_task(task):
 
 
 
-# In[ ]:
-
-
-
-
-# In[ ]:
-
-
-
-
-# In[ ]:
-
-
-
-
-# In[79]:
 
 import numpy as np
 import pandas as pd
 
 
-# In[80]:
 
 #preprocessing
 from sklearn import preprocessing
@@ -733,7 +692,6 @@ from sklearn.neural_network import MLPRegressor
 from sklearn.metrics import accuracy_score
 
 
-# In[81]:
 
 #Reading data
 def prepare_data_for_defining_parameter_training():
@@ -762,7 +720,6 @@ def prepare_data_for_defining_parameter_training():
     return train_features_scaled, train_labels
 
 
-# In[82]:
 
 ################################
 #    ANN with preprocessing    #
@@ -785,6 +742,7 @@ def defining_parameters_train():
 # In[83]:
 
 #Делает так, чтобы каждому параметру было что-то сопоставлено
+
 def repair_prediction(prediction, parameters_number):
     values = dict()
     bad = []
@@ -803,8 +761,25 @@ def repair_prediction(prediction, parameters_number):
         empty.append(0)
     for i in range(len(bad)):
         prediction[bad[i]] = empty[i]
-    return prediction
+    return repair_empty_prediction(prediction, parameters_number)
 
+
+#Делаем ток, чтобы в задачи присутсовали все параметры   
+def repair_empty_prediction(prediction, parameters_number):
+    values = dict()
+    z = [] # номера чисел, у которых ноль
+    n = [] # нераставленные метки
+    for i in range(len(prediction)):
+        v = prediction[i]       
+        values[v] = 1
+        if (v == 0):
+            z.append(i)
+    for i in range(1, parameters_number + 1):
+        if (i not in values.keys()):
+            n.append(i)
+    for i in range(min(len(z), len(n))):
+        prediction[z[i]] = n[i]
+    return prediction
 
         
 
@@ -829,7 +804,7 @@ def w_sug_parameters(clf, task):
                     else:
                         answer += "  " + parameters_names[int(predictions[i]) - 1] + " - 2 \n"
                     
-        answer += "Правильно?"
+        answer += ok_replic()
         return answer, task_features, predictions
 
 
@@ -837,18 +812,20 @@ def w_sug_parameters(clf, task):
 def w_ans(answer): 
     global last_answer
     possible_yes = ["да", 'правильно', 'верно', 'согласен', 'согласна']
-    possible_no = ["нет"]
+    possible_no = ["нет", "не", "no"]
+    possible_insult = ["дурак", "дебил", "тупой", "идиот","козёл", "сволочь", "урод", "придурок", "дурачок", "глупый"]
     ans = process_answer(answer)        
     ans_words = ans.split(" ")
     if (intersect(ans_words, possible_yes)):
         return "yes"
     if (intersect(ans_words, possible_no)):
         return "no"
+    if (intersect(ans_words, possible_insult)):
+        return "insult"
+        
     return "nothing"
             
 
-
-# In[86]:
 
 def find_index(l, v):
     for i in range(len(l)):
@@ -857,7 +834,6 @@ def find_index(l, v):
     return -1
 
 
-# In[87]:
 
 def w_repair_parameters(answer, processed_task, nums):    
    
@@ -901,7 +877,6 @@ def w_repair_parameters(answer, processed_task, nums):
         return 0, replic
 
 
-# In[88]:
 
 def save_defining_parameters(processed_task, task_features, predictions):
     
@@ -917,8 +892,6 @@ def save_defining_parameters(processed_task, task_features, predictions):
 # # Task classification
 
 # Classification names
-
-# In[89]:
 
 #Read parameters of the task (same for all tasks from the theme)
 def read_classification_names(): 
@@ -957,13 +930,12 @@ def w_sug_classification_names():
             output += "   " + str(i + 1) + ". " + names[i] + "\n"
         else:
             output += "   " + str(i + 1) + ". " + names[i] + "?" + "\n"
-    output += "Все правильно?\n"
+    output += ok_replic()
     return output
     
         
 # Defining task type
 
-# In[92]:
 
 #Extract features for classification the task
 def extract_classification_features(processed_task, parameters_features, parameters_labels):
@@ -997,8 +969,6 @@ def extract_classification_features(processed_task, parameters_features, paramet
     return features
 
 
-# In[93]:
-
 def prepare_data_for_classification_training():
     parameters_names_file = 'tasks_types'
     parameters_names_file = generate_files_name(parameters_names_file)
@@ -1024,7 +994,6 @@ def prepare_data_for_classification_training():
     return train_features_scaled, train_labels
 
 
-# In[94]:
 
 
     
@@ -1057,7 +1026,7 @@ def w_sug_classification(processed_task, task_features, predictions):
     features_list = []
     features_list.append(features)    
     prediction = cl_clf.predict(features_list)    
-    replic = "Мне кажется, что эта задача относится к типу \"" + str(types[int(prediction) - 1]) + "\"\n Правильно?"
+    replic = "Мне кажется, что эта задача относится к типу \"" + str(types[int(prediction) - 1]) + "\". \n " + ok_replic()
     return replic, features, int(prediction[0])
     
 
@@ -1084,9 +1053,6 @@ def save_classification(processed_task, cl_features, task_type):
     save_task(str(task_type), classification_label_file, "\n")
 
 
-# # Finding answer
-
-# In[98]:
 
 def extract_answer_features(task, dp_labels):
     nums = extract_numbers(task)   
@@ -1100,7 +1066,6 @@ def extract_answer_features(task, dp_labels):
     return features_ans
 
 
-# In[99]:
 
 def prepare_data_for_answer_training(task_type):    
     folder = ""    
@@ -1130,34 +1095,53 @@ def prepare_data_for_answer_training(task_type):
 
 def ans_train(task_type):
     data_train, label_train = prepare_data_for_answer_training(task_type)
-    clf = DecisionTreeRegressor()
+    clf = MLPRegressor(solver='lbfgs', alpha=1e-5,hidden_layer_sizes=(8, 14), random_state=1)
+    #clf = DecisionTreeRegressor()
     clf.fit(data_train, label_train)
     return clf
 
 
 # In[109]:
 
-def w_sug_answer(processed_task, predictions):
+def w_sug_answer(user, task_type, processed_task, predictions):
     global ans_clf
     global classification
-    ans_clf = ans_train(classification)
+    
     features = extract_answer_features(processed_task, predictions)
+    
+    # Проверка, если такой ответ уже был
+    
+    data_train, label_train = prepare_data_for_answer_training(task_type)
+    
+    
+    row = data_train.shape[0] - 1
+    while (row >= 0):         
+        if (data_train.get_value(row,0) == features[0] and data_train.get_value(row,1) == features[1]):  
+            answer = label_train.get_value(row, 0)
+            
+            replic = propose_answer_replic(user) + str(answer) +  ". \n " + ok_replic()
+            
+            return replic, features, answer
+        row -= 1
+    
+    #
+    
+    ans_clf = ans_train(classification)    
     features_list = []
     features_list.append(features)
     prediction = ans_clf.predict(features_list)    
     answer = int(prediction[0])
-    replic = "Я подумал и решил, что ответ: " + str(answer) +  "\n Правильно?\n"
+    replic = "Я подумал и решил, что ответ: " + str(answer) +  ". \n" + ok_replic()
     return replic, features, answer
 
 
-# In[102]:
+
 
 def w_repair_answer():    
     return "А какой правильный ответ?\n"
     
 
 
-# In[103]:
 
 def save_answer(task_type, ans_features, answer):
     folder = ""
@@ -1173,42 +1157,52 @@ def save_answer(task_type, ans_features, answer):
 
 # # Interaction with user
 
-# In[ ]:
 
-
-
-
-# In[ ]:
-
-
-
-
-# # 
-
-# In[ ]:
-
-
-
-
-# In[104]:
 
 sug_parameters_replic = "Давай переучимся!"
 
 
-# In[105]:
 
 #mode = "sug_parameters_name"
 #last_answer = ""
 #prediction = []
 
-def yes_answer():
-    return "Я рад, что всё правильно!"
-def nothing_answer():
-    return "К сожалению, я не понял ответа. Напишите, пожалуйста, \"да\" или \"нет\"."
+yes_answers = ["Я рад, что всё правильно!", "Отлично!", "Ура! Угадал!", "Ура! Я не ошибся!", "Мне нравится, когда у меня правильно))", "Фууух! Правильно!", "А я переживал, что ошибся!"]
+nothing_answers = ["К сожалению, я не понял ответа. Напишите, пожалуйста, \"да\" или \"нет\".", "Ваш ответ мне не понятен:( Введите, пожалуйста, \"да\" или \"нет\".", "Я не понимаю того, что Вы написали. Извините. Я всего лишь бот. Напишите, пожалуйста, \"да\" или \"нет\".", "Ой-ой! Я не понял Вашего ответа. Напишите, пожалуйста, \"да\" или \"нет\".", "Вы написали что-то, что я непонял:( Напишите, пожалуйста, \"да\" или \"нет\"."]
+remember_replics = ["Я запомнил!", "Я постараюсь запомнить", "Хорошо, я постараюсть запомнить это", "Ок, в следующий раз учту!", "Хорошо, запомнил!. А вы - замечательный учитель", "Понял! Вы, похоже, неплохой преподаватель:)", "Запомнил! Скоро я всему научусь! Обещаю!", "Уф, постараюсь выучить!", "Понял! Впреть постараюсь никогда не ошибаться!", "Выучил! (Мне очень нравится эта тема!!!)", "Понял. Спасибо!", "Это сложовато пока для меня. Но я стараюсь запомнить всё, что вы говорите.", "Запомнил! Какая непросто! Но я люблю узнавать все новое!!!", "Эх, как бы не забыть в следующий раз...", "Надеюсь, в следующий раз у меня получится сказать все правильно", "Спасибо за разъяснение!"]
+propose_answer_replics = ["Я подумал и решил, что ответ: ", "Мне кажется, что ответ: ", "Я не до конца уверен, но, по-моему, ответ: ", "На мой взгляд, должно получиться", "Какая сложная задача! Даже не знаю. Эх, была-не была. Думаю, что ответ: ", "Так-так...Что-то мне подсказывает, что ответ: ", "Ооочень не уверен, но считаю, что ответ: ", "Кажется, я посчитал!!! Ответ: ", "Очень заковыристо. Ответ: "]
+ok_replics = ["Правильно?", "Верно?", "Так?", "Я прав?", "Всё верно?"]
+        
+        
+def yes_answer(user):
+    global used_yes_answers
+    used_yes_answers[user], replic = replic_randomizer(used_yes_answers[user], yes_answers)    
+    return replic
+    
+def nothing_answer(user):
+    global used_nothing_answers
+    used_nothing_answers[user], replic = replic_randomizer(used_nothing_answers[user], nothing_answers)    
+    return replic
+    
+def remember_replic(user):
+    global used_remember_replics
+    used_remember_replics[user], replic = replic_randomizer(used_remember_replics[user], remember_replics)    
+    return replic
+    
+def propose_answer_replic(user):
+    global used_propose_answer_replics
+    used_propose_answer_replics[user], replic = replic_randomizer(used_propose_answer_replics[user], propose_answer_replics)    
+    return replic
 
-
-# In[ ]:
+def ok_replic():    
+    return replic_randomizer_without_memory(ok_replics)
+    
 modes = {}
+used_yes_answers = {}
+used_nothing_answers = {}
+used_remember_replics = {}
+used_propose_answer_replics = {}
+
 last_answer = ""
 
 def change_mode(user):
@@ -1226,6 +1220,10 @@ def generate_answer(last_answer, user):
     
     if user not in modes.keys():
         modes.update({user: "sug_parameters_name"})
+        used_yes_answers.update({user: []})
+        used_nothing_answers.update({user: []})
+        used_remember_replics.update({user: []})
+        used_propose_answer_replics.update({user: []})
     
     user_id = user
     
@@ -1234,7 +1232,7 @@ def generate_answer(last_answer, user):
         
 ##### Parameters names ######
         
-    if ( modes[user] == "sug_parameters_name"):
+    if (modes[user] == "sug_parameters_name"):
         parameters_names = read_parameters_names()
         if (len(parameters_names) != 0):
             modes[user] = "ans_parameters_name"        
@@ -1247,22 +1245,24 @@ def generate_answer(last_answer, user):
         ans = w_ans(last_answer)
         if (ans == "yes"):
             modes[user] = "ans_classification_names"
-            return yes_answer() + "\n" + w_sug_classification_names()  
+            return yes_answer(user) + "\n" + w_sug_classification_names()  
         if (ans == "no"):
             modes[user] = "repair_parameters_name"
             return w_repair_parameters_name()
+        if (ans == "insult"):
+            return abuse_replic() + nothing_answer(user)
         if (ans == "nothing"):
-            return nothing_answer()
+            return nothing_answer(user)
         
     if (modes[user] == "repair_parameters_name"):
         #mode = "sug_classification_names"
         classification_names = read_classification_names()
         if (len(classification_names) != 0):
             modes[user] = "ans_classification_names"        
-            return w_repair_parameters_done(last_answer) + "\n" + w_sug_classification_names()
+            return w_repair_parameters_done(user, last_answer) + "\n" + w_sug_classification_names()
         else:
             modes[user] = "repair_classification_names"
-            return w_repair_parameters_done(last_answer) + "\n" + w_repair_classification_names()
+            return w_repair_parameters_done(user, last_answer) + "\n" + w_repair_classification_names()
         
          
     
@@ -1274,16 +1274,18 @@ def generate_answer(last_answer, user):
         if (ans == "yes"):
         
             modes[user] = "sug_task"
-            return yes_answer() + "\n" + w_sug_task()
+            return yes_answer(user) + "\n" + w_sug_task()
         if (ans == "no"):
             modes[user] = "repair_classification_names"
             return w_repair_classification_names()
+        if (ans == "insult"):
+            return abuse_replic() + nothing_answer(user)
         if (ans == "nothing"):
-            return nothing_answer()
+            return nothing_answer(user)
         
     if (modes[user] == "repair_classification_names"):
         modes[user] = "sug_task"
-        return w_repair_classification_names_done(last_answer) + "\n" + w_sug_task()
+        return w_repair_classification_names_done(user, last_answer) + "\n" + w_sug_task()
     
     
 ##### Task ######
@@ -1293,6 +1295,7 @@ def generate_answer(last_answer, user):
         task = replace_word_with_numbers(last_answer)
         res, replic = w_repair_task(last_answer)
         save_task(task, processed_tasks_file, "\n#\n")
+        replic_par = ""
         if (res == "true"):
             nums = extract_numbers(task)
             dp_clf = defining_parameters_train()
@@ -1308,13 +1311,15 @@ def generate_answer(last_answer, user):
             modes[user] = "ans_classification" #todo
             save_defining_parameters(task, parameters_features, parameters_prediction)
             replic, classification_features, classification = w_sug_classification(task, parameters_features, parameters_prediction)
-            return yes_answer() + "\n" + replic #todo
+            return yes_answer(user) + "\n" + replic #todo
         if (ans == "no"):
             modes[user] = "repair_parameters" #todo
             repair_parameters_iteration = 0
             return w_repair_parameters(last_answer, task, nums)[1] #todo
+        if (ans == "insult"):
+            return abuse_replic() + nothing_answer(user)
         if (ans == "nothing"):
-            return nothing_answer()
+            return nothing_answer(user)
         
     if (modes[user] == "repair_parameters"):
         res, ans = w_repair_parameters(last_answer, task, nums)
@@ -1335,18 +1340,20 @@ def generate_answer(last_answer, user):
         if (ans == "yes"):
             #print("Hello")
             modes[user] = "ans_answer"
-            replic, answer_features, answer = w_sug_answer(task, parameters_prediction)            
-            return yes_answer() + "\n" + replic
+            replic, answer_features, answer = w_sug_answer(user, classification, task, parameters_prediction)            
+            return yes_answer(user) + "\n" + replic
         if (ans == "no"):
             modes[user] = "repair_classification"
             return w_repair_classification()
+        if (ans == "insult"):
+            return abuse_replic() + nothing_answer(user)
         if (ans == "nothing"):
-            return nothing_answer()
+            return nothing_answer(user)
         
     if (modes[user] == "repair_classification"):
             classification = int(last_answer)
             save_classification(task, classification_features, classification)
-            replic, answer_features, answer = w_sug_answer(task, parameters_prediction)
+            replic, answer_features, answer = w_sug_answer(user, classification, task, parameters_prediction)
             modes[user] = "ans_answer"
             return replic
         
@@ -1355,12 +1362,14 @@ def generate_answer(last_answer, user):
         ans = w_ans(last_answer)
         if (ans == "yes"):
             modes[user] = "sug_task"
-            return yes_answer() + "\n" + w_sug_task()            
+            return yes_answer(user) + "\n" + w_sug_task()            
         if (ans == "no"):
             modes[user] = "repair_answer"
             return w_repair_answer()
+        if (ans == "insult"):
+            return abuse_replic() + nothing_answer(user)
         if (ans == "nothing"):
-            return nothing_answer()
+            return nothing_answer(user)
         
     if (modes[user] == "repair_answer"):
             answer = int(last_answer)
