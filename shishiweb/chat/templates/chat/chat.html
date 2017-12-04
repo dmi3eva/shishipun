@@ -5,6 +5,7 @@
         <link rel="stylesheet" type="text/css" href="{% static 'css/chat.css' %}">    
     </head>
     <body>
+        <a href="{% url 'help' %}" class="help"> <p class="hlp"> Нужна помощь? </p> </a>
         <a href="{% url 'choosing_type' %}"> <img class="but_back" src="{% static 'images/button_back.png' %}" width="8%"/></a>
         <a href="{% url 'logout' %}"> <img class="but_log_out" src="{% static 'images/button_log_out.png' %}" width="10%"/></a>
         <form action="/sent" method="get">

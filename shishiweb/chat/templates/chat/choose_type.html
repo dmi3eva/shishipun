@@ -11,6 +11,7 @@
         </script>
     </head>
     <body>
+        <a href="{% url 'help' %}" class="help"> <p class="hlp"> Нужна помощь? </p> </a>
         <a href="{% url 'logout' %}"> <img class="but_log_out" src="{% static 'images/button_log_out.png' %}" width="10%"/></a>
         <a href="{% url 'theory_message_sent' %}"> <img class="but1" src="{% static 'images/choosing_type_but1.png' %}" width="16%"/></a>
         <a href="{% url 'message_sent' %}"> <img class="but2" src="{% static 'images/choosing_type_but2.png' %}" width="16%"/></a>

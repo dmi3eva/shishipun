@@ -3,6 +3,19 @@ body {
     background-repeat: repeat-y;
     background-size: cover;
 }
+
+.hlp {
+    margin: 1% 0 0 84%;          
+ }
+ 
+.help:link {
+    color: white;
+}
+
+.help:visited {
+    color: white;
+}
+
 .but_log_out {
     padding: 50% 50 50 30%;         
 }

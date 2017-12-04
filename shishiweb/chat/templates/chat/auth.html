@@ -6,6 +6,7 @@
     <link rel="stylesheet" type="text/css" href="{% static 'css/auth.css' %}">    
   </head>
   <body>
+    <a href="{% url 'help' %}" class="help"> <p class="hlp"> Нужна помощь? </p> </a>
     <div class="form">
     <p align="center"> Пожалуйста, авторизуйтесь </p>
     <form action="/auth_check/" method="post">

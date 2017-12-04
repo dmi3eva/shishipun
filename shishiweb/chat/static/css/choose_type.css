@@ -5,12 +5,24 @@ body {
     background-attachment: fixed;
 }
 
+.hlp {
+    margin: 1% 0 0 84%;          
+ }
+ 
+.help:link {
+    color: white;
+}
+
+.help:visited {
+    color: white;
+}
+
 .but_log_out {
-    margin: 1% 0 0 79%;         
+    margin: 3% 0 0 84%;         
 }
 
 .but1 {
-    margin: 10% 15 10 20%;
+    margin: 8% 15 10 20%;
 }
 
 .but2 {

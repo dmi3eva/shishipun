@@ -34,6 +34,9 @@ def check_session(request):
         return render(request, "chat/auth.html")
     else:
         return 0
+        
+def help(request):
+    return render(request, "chat/help.html")
     
 def logout(request):
     if 'member_id' not in request.session:
