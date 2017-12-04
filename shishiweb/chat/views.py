@@ -3,6 +3,7 @@ from chat.models import User
 import os
 from chat.problem_solving import generate_answer, change_mode
 from chat.theory_asking import generate_replic
+from chat.testing import geberate_task_marks
 
 user_id = ''
 user_dialog = {}
@@ -221,7 +222,7 @@ def test(request):
     
     task_mark = Task_mark('Сколько существует способов выбрать несколько часов из 24, чтобы поспать?', 0)
     tasks_marks.append(task_mark)
-    
+    #tasks_marks = generate_tasks_marks(user_id)
     
     
     tests.update({request.session['member_id']:tasks_marks})
