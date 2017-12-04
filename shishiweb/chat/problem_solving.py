@@ -811,7 +811,7 @@ def w_ans(answer):
     global last_answer
     possible_yes = ["да", 'правильно', 'верно', 'согласен', 'согласна']
     possible_no = ["нет", "не", "no"]
-    possible_insult = ["дурак", "дебил", "тупой", "идиот","козёл", "сволочь", "урод", "придурок", "дурачок", "глупый"]
+    possible_insult = ["дурак", "дебил", "тупой", "идиот","козёл", "сволочь", "урод", "придурок", "дурачок", "глупый", "говноед", "говножуй", "гриб", "грибарь"]
     ans = process_answer(answer)        
     ans_words = ans.split(" ")
     if (intersect(ans_words, possible_yes)):
