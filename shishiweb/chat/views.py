@@ -1,9 +1,9 @@
 from django.shortcuts import render
 from chat.models import User
-import os
+import os, shutil
 from chat.problem_solving import generate_answer, change_mode
 from chat.theory_asking import generate_replic
-from chat.testing import geberate_task_marks
+from chat.testing import generate_tasks_marks
 
 user_id = ''
 user_dialog = {}
@@ -29,7 +29,16 @@ class Task_mark:
    def __init__(self, txt, mrk):
        self.text = txt
        self.mark = mrk
-       
+
+def reset_education(request):
+    module_dir = os.path.dirname(__file__)
+    print(request.session['member_id'])
+    target_dir = os.path.join(module_dir + '/res' + str(request.session['member_id']))       
+    shutil.rmtree(target_dir)
+    source_path = module_dir + '/initial_res'
+    shutil.copytree(source_path, target_dir)
+    return render(request, 'chat/auth.html')
+    
 def check_session(request):
     if 'member_id' not in request.session:
         return render(request, "chat/auth.html")

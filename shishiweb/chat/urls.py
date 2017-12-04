@@ -15,6 +15,7 @@ urlpatterns = [
     url('auth_check', views.auth_check, name='auth_check'),
     url('logout/', views.logout, name='logout'),
     url('help/', views.help, name='help'),
+    url('reset/', views.reset_education, name='reset'),
     url('^$', views.auth),
 ]
 
