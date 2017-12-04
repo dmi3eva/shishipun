@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from chat.models import User
 import os
-from chat.problem_solving import generate_answer
+from chat.problem_solving import generate_answer, change_mode
 from chat.theory_asking import generate_replic
 
 user_id = ''
@@ -115,6 +115,7 @@ def choose_type(request):
         request.session['member_id'] = ''
     if request.session['member_id'] == '':
         return render(request, 'chat/auth.html')
+    change_mode(request.session['member_id'])
     user_dialog.update({request.session['member_id']:[]})
     theory_user_dialog.update({request.session['member_id']:[]})
     test_theory_user_dialog.update({request.session['member_id']:[]})

@@ -1211,6 +1211,10 @@ def nothing_answer():
 modes = {}
 last_answer = ""
 
+def change_mode(user):
+    global modes
+    modes.update({user: "sug_parameters_name"})
+
 def generate_answer(last_answer, user):    
     global modes, prediction
     global parameters_names, classification_names
