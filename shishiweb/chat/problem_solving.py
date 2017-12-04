@@ -17,16 +17,19 @@ classification_label_file = 'train_classification_labels'
 classification_features_file = "train_classification_features"
 
 
-def replic_randomizer(used_replics, all_replics):    
+def replic_randomizer(used_replics, all_replics):  
+    print(used_replics)
     if (len(used_replics) == len(all_replics)):
         used_replics[:] = []
     random.seed(version=2)
     number = random.randint(0, len(all_replics) - 1)   
-    
+    print(number)
     while (number in used_replics):
         number = random.randint(0, len(all_replics) - 1)
+        print(number)
     used_replics.append(number)
     return used_replics, all_replics[number]
+
 
 def replic_randomizer_without_memory(all_replics):
     random.seed(version=2)
@@ -35,7 +38,7 @@ def replic_randomizer_without_memory(all_replics):
     
 
 def abuse_replic():
-    return "Не ругайтесь, пожалуйста! Я ещё маленький! \n"
+    return replic_randomizer_without_memory(abuse_replics)
 
 def generate_files_name(file_name):
     global user_id
@@ -451,7 +454,6 @@ def extract_sentence_with_parameter(parameter, text):
     return text[left : right]
 
 
-# In[72]:
 
 #find position (as proportion) of the number in the text (if we count for letters)
 def extract_text_position_as_letters(parameter, text): 
@@ -617,7 +619,6 @@ def extract_first_word_in_sentence(parameter, text):
     return res  
 
 
-# In[76]:
 
 def extract_parameter_features(parameters, number, text):
     for i in range(len(parameters)):
@@ -647,8 +648,7 @@ def extract_all_parameters_features(text):
     parameters_features = []
     substitution = -1007
     parameters = extract_numbers(text)    
-    ind = 0
-    
+       
     for index in range(len(parameters)):            
         parameters_features.append(extract_parameter_features(parameters, index, text))            
         text = text.replace(str(parameters[index]), str(substitution), 1)     
@@ -723,11 +723,13 @@ def prepare_data_for_defining_parameter_training():
 #    ANN with preprocessing    #
 ################################
 
-def defining_parameters_train():
+def defining_parameters_train(user_num):
+    global user_id
+    user_id = user_num
     data_train, label_train = prepare_data_for_defining_parameter_training()
     label_train = np.ravel(label_train)
 
-    max_sc_ann = 0
+    #max_sc_ann = 0
     ls1 = 8 #calculated by several experiments
     ls2 = 10
 
@@ -737,7 +739,6 @@ def defining_parameters_train():
     return ann_clf
 
 
-# In[83]:
 
 #Делает так, чтобы каждому параметру было что-то сопоставлено
 
@@ -782,8 +783,6 @@ def repair_empty_prediction(prediction, parameters_number):
         
 
 
-# In[84]:
-
 def w_sug_parameters(clf, task):
         
         parameters_names = read_parameters_names()        
@@ -798,11 +797,11 @@ def w_sug_parameters(clf, task):
         for i in range(len(predictions)):
                 if (predictions[i] != 0): 
                     if (int(nums[i]) != 10000000007):
-                        answer += "  " + parameters_names[int(predictions[i]) - 1] + " - " + str(int(nums[i])) + "\n"
+                        answer += "  " + parameters_names[int(predictions[i]) - 1].lower() + " - " + str(int(nums[i])) + ", "
                     else:
-                        answer += "  " + parameters_names[int(predictions[i]) - 1] + " - 2 \n"
+                        answer += "  " + parameters_names[int(predictions[i]) - 1] + " - 2, "
                     
-        answer += ok_replic()
+        answer += ok_replic().lower()
         return answer, task_features, predictions
 
 
@@ -903,6 +902,18 @@ def read_classification_names():
     
     return list_of_names
 
+def t_read_classification_names(user_num):
+    global user_id
+    user_id = user_num
+    filename = generate_files_name(classification_names_file)   
+    cla_file = open(filename, 'r')
+    content = cla_file.read()
+    list_of_names = content.split('\n')
+    list_of_names.pop()
+    cla_file.close()
+    
+    
+    return list_of_names
 
 
 # In[90]:
@@ -1003,7 +1014,7 @@ def classification_train():
     data_train, label_train = prepare_data_for_classification_training()
     label_train = np.ravel(label_train)
 
-    max_sc_ann = 0
+    #max_sc_ann = 0
     ls1 = 8 #calculated by several experiments
     ls2 = 10
 
@@ -1013,7 +1024,20 @@ def classification_train():
     return ann_clf
 
 
-# In[108]:
+def t_classification_train(user_num):
+    global user_id
+    user_id = user_num
+    data_train, label_train = prepare_data_for_classification_training()
+    label_train = np.ravel(label_train)
+
+    #max_sc_ann = 0
+    ls1 = 8 #calculated by several experiments
+    ls2 = 10
+
+    ann_clf = MLPClassifier(solver='lbfgs', alpha=1e-5,hidden_layer_sizes=(ls1, ls2), random_state=1)
+    ann_clf.fit(data_train, label_train) 
+    
+    return ann_clf
 
 
 def w_sug_classification(processed_task, task_features, predictions):
@@ -1028,7 +1052,14 @@ def w_sug_classification(processed_task, task_features, predictions):
     return replic, features, int(prediction[0])
     
 
-
+def t_sug_classification(cla_clf, processed_task, task_features, predictions):
+    cla_clf = classification_train()
+    features = extract_classification_features(processed_task, task_features, predictions)
+    types = read_classification_names()
+    features_list = []
+    features_list.append(features)    
+    prediction = cla_clf.predict(features_list)    
+    return features, int(prediction[0])
 
 
 
@@ -1042,7 +1073,6 @@ def w_repair_classification():
     return replic
 
 
-# In[120]:
 
 def save_classification(processed_task, cl_features, task_type):
     f = str(cl_features)
@@ -1098,8 +1128,15 @@ def ans_train(task_type):
     clf.fit(data_train, label_train)
     return clf
 
+def t_ans_train(user_num, task_type):
+    global user_id
+    user_id  = user_num
+    data_train, label_train = prepare_data_for_answer_training(task_type)
+    clf = MLPRegressor(solver='lbfgs', alpha=1e-5,hidden_layer_sizes=(8, 14), random_state=1)
+    #clf = DecisionTreeRegressor()
+    clf.fit(data_train, label_train)
+    return clf
 
-# In[109]:
 
 def w_sug_answer(user, task_type, processed_task, predictions):
     global ans_clf
@@ -1131,6 +1168,37 @@ def w_sug_answer(user, task_type, processed_task, predictions):
     answer = int(prediction[0])
     replic = "Я подумал и решил, что ответ: " + str(answer) +  ". \n" + ok_replic()
     return replic, features, answer
+    
+    
+def t_sug_answer(user, ans_clfs, task_type, processed_task, predictions):
+
+    
+    features = extract_answer_features(processed_task, predictions)
+    
+    # Проверка, если такой ответ уже был
+    
+    data_train, label_train = prepare_data_for_answer_training(task_type)
+    
+    
+    row = data_train.shape[0] - 1
+    while (row >= 0):         
+        if (data_train.get_value(row,0) == features[0] and data_train.get_value(row,1) == features[1]):  
+            answer = label_train.get_value(row, 0)
+            
+            
+            
+            return answer
+        row -= 1
+    
+    #
+    
+    ans_clf = ans_clfs[task_type - 1]    
+    features_list = []
+    features_list.append(features)
+    prediction = ans_clf.predict(features_list)    
+    answer = int(prediction[0])
+   
+    return answer
 
 
 
@@ -1170,6 +1238,7 @@ nothing_answers = ["К сожалению, я не понял ответа. На
 remember_replics = ["Я запомнил!", "Я постараюсь запомнить", "Хорошо, я постараюсть запомнить это", "Ок, в следующий раз учту!", "Хорошо, запомнил!. А вы - замечательный учитель", "Понял! Вы, похоже, неплохой преподаватель:)", "Запомнил! Скоро я всему научусь! Обещаю!", "Уф, постараюсь выучить!", "Понял! Впреть постараюсь никогда не ошибаться!", "Выучил! (Мне очень нравится эта тема!!!)", "Понял. Спасибо!", "Это сложовато пока для меня. Но я стараюсь запомнить всё, что вы говорите.", "Запомнил! Какая непросто! Но я люблю узнавать все новое!!!", "Эх, как бы не забыть в следующий раз...", "Надеюсь, в следующий раз у меня получится сказать все правильно", "Спасибо за разъяснение!"]
 propose_answer_replics = ["Я подумал и решил, что ответ: ", "Мне кажется, что ответ: ", "Я не до конца уверен, но, по-моему, ответ: ", "На мой взгляд, должно получиться", "Какая сложная задача! Даже не знаю. Эх, была-не была. Думаю, что ответ: ", "Так-так...Что-то мне подсказывает, что ответ: ", "Ооочень не уверен, но считаю, что ответ: ", "Кажется, я посчитал!!! Ответ: ", "Очень заковыристо. Ответ: "]
 ok_replics = ["Правильно?", "Верно?", "Так?", "Я прав?", "Всё верно?"]
+abuse_replics = ["Не ругайтесь, пожалуйста! Я ещё маленький! \n", "Зачем так грубо... Мне грустно. ", "Грубовато... А ведь я хороший. "]
         
         
 def yes_answer(user):
@@ -1296,7 +1365,7 @@ def generate_answer(last_answer, user):
         replic_par = ""
         if (res == "true"):
             nums = extract_numbers(task)
-            dp_clf = defining_parameters_train()
+            dp_clf = defining_parameters_train(user_id)
             replic_par, parameters_features, parameters_prediction = w_sug_parameters(dp_clf, task)
             modes[user] = "sug_parameters"
         return replic + "\n" + replic_par
