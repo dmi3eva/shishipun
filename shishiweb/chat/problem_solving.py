@@ -17,16 +17,14 @@ classification_label_file = 'train_classification_labels'
 classification_features_file = "train_classification_features"
 
 
-def replic_randomizer(used_replics, all_replics):
-
-    
+def replic_randomizer(used_replics, all_replics):    
     if (len(used_replics) == len(all_replics)):
         used_replics[:] = []
     random.seed(version=2)
     number = random.randint(0, len(all_replics) - 1)   
     
     while (number in used_replics):
-        number = random.randint(0, len(all_replics))
+        number = random.randint(0, len(all_replics) - 1)
     used_replics.append(number)
     return used_replics, all_replics[number]
 
