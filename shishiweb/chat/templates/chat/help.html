@@ -1,0 +1,22 @@
+{% load staticfiles %}
+
+<html>
+    <head>
+        <link rel="stylesheet" type="text/css" href="{% static 'css/rating.css' %}">  
+    </head>
+    <body onload="scroll_To_Buttom('mes_table')">
+        <a href="{% url 'auth' %}"> <img class="but_back" src="{% static 'images/button_back.png' %}" width="8%"/></a>
+        <div class="table_dialog">
+            <table>
+                <tr height="20">
+                    <td width="350" align="center"> Telegram: </td>
+                    <td width="350" align="center"> @diagentstvo </td>
+                </tr>
+                <tr height="20">
+                    <td width="350" align="center"> E-mail: </td>
+                    <td width="350" align="center"> diogen.nsu@gmail.com </td>
+                </tr>
+            </table>
+        </div>
+    </body>
+</html>
