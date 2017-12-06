@@ -5,4 +5,4 @@ class User(models.Model):
     password = models.TextField()
     name = models.TextField()
     surname = models.TextField()
-    bot_mark = models.TextField()
+    bot_mark = models.IntegerField()
