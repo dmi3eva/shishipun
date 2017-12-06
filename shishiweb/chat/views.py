@@ -52,7 +52,10 @@ def logout(request):
     if 'member_id' not in request.session:
         request.session['member_id'] = ''
     else:
+        change_mode(request.session['member_id'])
         user_dialog.update({request.session['member_id']:[]})
+        theory_user_dialog.update({request.session['member_id']:[]})
+        test_theory_user_dialog.update({request.session['member_id']:[]})
         request.session['member_id'] = ''
     return render(request, "chat/auth.html")      
 
