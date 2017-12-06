@@ -231,8 +231,11 @@ def test(request):
     
     #task_mark = Task_mark('Сколько существует способов выбрать несколько часов из 24, чтобы поспать?', 0)
     #tasks_marks.append(task_mark)
-    tasks_marks = generate_tasks_marks(user_id)
-    
+    res, tasks_marks = generate_tasks_marks(user_id)
+    user = User.objects.get(id = request.session['member_id'])
+    setattr(user,'bot_mark', res)
+    user.save()
+    print(user.bot_mark)
     
     tests.update({request.session['member_id']:tasks_marks})
     
