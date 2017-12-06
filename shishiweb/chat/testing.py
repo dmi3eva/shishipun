@@ -65,12 +65,14 @@ def generate_tasks_marks(user):
     for i in range(len(types)):
         ans_clfs.append(t_ans_train(user_id, i + 1))
             
-        
+    summ = 0
     for i in range(len(tasks)):
+        grade = mark(answer(tasks[i], dp_clf, cl_clf, ans_clfs), answers[i])
+        summ += 1 - grade
         if (i < open_tasks_amount):
-            result = Task_mark(tasks[i], mark(answer(tasks[i], dp_clf, cl_clf, ans_clfs), answers[i]))
+            result = Task_mark(tasks[i], grade)
         else:
-            result = Task_mark("Закрытая задача", mark(answer(tasks[i], dp_clf, cl_clf, ans_clfs), answers[i]))
+            result = Task_mark("Закрытая задача", grade)
         results.append(result)
-    return results
+    return summ, results
     
