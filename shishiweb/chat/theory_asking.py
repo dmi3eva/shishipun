@@ -350,7 +350,7 @@ def too_many_info_replic():
     return "Я еще слишком маленький,чтобы столько запомнить сразу. Буду рад, если вы будете рассказывать мне по одному-два предложения."                                            
     
 def short_answer_reaction_replic():
-    return "=))) Расскажи мне что-нибудь еще или спроси меня о чём-нибудь."
+    return "=))) Расскажи мне что-нибудь еще."
 
 def  not_found_question_replic():
     "Очень интересно! Расскажите что-нибудь ещё!"
@@ -453,7 +453,82 @@ def extract_nouns(text):
             nouns.append(word)
     return nouns 
             
+def read_special_knowledge(q_num):
+    filename = generate_files_name("special_knowledge")
+    res = []
+    if not os.path.exists(filename): 
+        file_k = open(filename, 'w')
+        for i in range(q_num):
+            file_k.write('0\n')
+            res.append(0)
+        return res
+    else:
+        file_k = open(filename, 'r')
+        content = file_k.read()
+        res = content.split('\n')
+    file_k.close()
+    res.pop()
+    return res
+    
+def write_special_knowledge(used):
+    filename = generate_files_name("special_knowledge")
+   
+    
+    file_k = open(filename, 'w')
+    for i in range(len(used)):
+        file_k.write(str(used[i]) + '\n')
+    file_k.close()
+    
+
+def read_general_questions():
+    questions = []
+    keywords = []
+    tabu = []
+    filename = generate_global_files_name("general_questions")
+    if os.path.exists(filename)==False:
+        print("Something wrong with files")
+    test_file = open(filename, 'r')
+    content = test_file.read()
+    all_tasks = content.split('@')
+    
+    all_tasks.pop()
+    for i in range(len(all_tasks)):
+        
+        tmp = all_tasks[i].split('#')
+        questions.append(tmp[0])
+        keywords.append(tmp[1])
+        tabu.append(tmp[2])
+    
+    test_file.close()
+    return questions, keywords, tabu
+    
+def general_question(statement):   
+    knowledge = read_knowledge()
+    questions, keywords, tabu = read_general_questions()  
+    q_num = len(questions)
+    used = read_special_knowledge(q_num)
+    for i in range(q_num):
+        inter_k = sentence_intersection(keywords[i], statement)
+        inter_t = sentence_noun_intersection(tabu[i], knowledge)
+        if (len(inter_k) > 0 and len(inter_t) == 0 and int(used[i]) == 0):
+            used[i] = 1
+            write_special_knowledge(used)
+            return questions[i]
+    for i in range(q_num):
+        inter_k = sentence_intersection(keywords[i], statement)
+        inter_t = sentence_intersection(tabu[i], statement)
+        if (len(inter_t) == 0 and int(used[i]) == 0):
+            used[i] = 1
+            write_special_knowledge(used)
+            return questions[i]
+    
+    
+    return ""
+
 def find_question(statement):
+    g_question = general_question(statement)
+    if (g_question != ""):
+        return g_question
     priority = find_priority(statement)
     knowledge = read_knowledge()
     facts = set(extract_normal_nouns(knowledge))
@@ -494,8 +569,8 @@ def generate_replic(last_answer, user, q_a):
             return too_many_info_replic()
         else:
             words = last_answer.split(" ")
-            #save_knowledge(last_answer)
-            if (len(words) < 4):
+            save_knowledge(last_answer)
+            if (len(words) < 3):
                 return short_answer_reaction_replic()
             
             return find_question(last_answer)

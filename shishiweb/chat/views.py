@@ -225,13 +225,13 @@ def test(request):
         request.session['member_id'] = ''
     if request.session['member_id'] == '':
         return render(request, 'chat/auth.html')
-    tasks_marks = []
-    task_mark = Task_mark('Сколько существует способов выбрать 1 час из 24, чтобы поспать?', 1)
-    tasks_marks.append(task_mark)
+    #tasks_marks = []
+    #task_mark = Task_mark('Сколько существует способов выбрать 1 час из 24, чтобы поспать?', 1)
+    #tasks_marks.append(task_mark)
     
-    task_mark = Task_mark('Сколько существует способов выбрать несколько часов из 24, чтобы поспать?', 0)
-    tasks_marks.append(task_mark)
-    #tasks_marks = generate_tasks_marks(user_id)
+    #task_mark = Task_mark('Сколько существует способов выбрать несколько часов из 24, чтобы поспать?', 0)
+    #tasks_marks.append(task_mark)
+    tasks_marks = generate_tasks_marks(user_id)
     
     
     tests.update({request.session['member_id']:tasks_marks})
