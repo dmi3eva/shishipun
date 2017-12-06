@@ -201,6 +201,7 @@ morph = pymorphy2.MorphAnalyzer()
 
 def save_task(task, fname, delimiter):
     filename = generate_files_name(fname)
+    print(filename)
     if os.path.exists:
         file = open(filename, 'a') #if file exists, than add new task
     else:
@@ -880,7 +881,8 @@ def save_defining_parameters(processed_task, task_features, predictions):
     save_task(processed_task, processed_tasks_file, "#\n")
     for i in range(len(task_features)):
         feature = str(task_features[i])        
-        feature = feature[1:-1]        
+        feature = feature[1:-1]  
+        print(parameters_features_file)
         save_task(feature, parameters_features_file, "\n")
         save_task(str(predictions[i]), parameters_label_file, "\n")
     
@@ -1233,12 +1235,18 @@ sug_parameters_replic = "Давай переучимся!"
 #last_answer = ""
 #prediction = []
 
-yes_answers = ["Я рад, что всё правильно!", "Отлично!", "Ура! Угадал!", "Ура! Я не ошибся!", "Мне нравится, когда у меня правильно))", "Фууух! Правильно!", "А я переживал, что ошибся!"]
+modes = {}
+used_yes_answers = {}
+used_nothing_answers = {}
+used_remember_replics = {}
+used_propose_answer_replics = {}
+
+yes_answers = ["Я рад, что всё правильно!", "Отлично!", "Ура! Угадал!", "Ура! Я не ошибся!", "Фууух! Правильно!", "А я переживал, что ошибся!"]
 nothing_answers = ["К сожалению, я не понял ответа. Напишите, пожалуйста, \"да\" или \"нет\".", "Ваш ответ мне не понятен:( Введите, пожалуйста, \"да\" или \"нет\".", "Я не понимаю того, что Вы написали. Извините. Я всего лишь бот. Напишите, пожалуйста, \"да\" или \"нет\".", "Ой-ой! Я не понял Вашего ответа. Напишите, пожалуйста, \"да\" или \"нет\".", "Вы написали что-то, что я непонял:( Напишите, пожалуйста, \"да\" или \"нет\"."]
 remember_replics = ["Я запомнил!", "Я постараюсь запомнить", "Хорошо, я постараюсть запомнить это", "Ок, в следующий раз учту!", "Хорошо, запомнил!. А вы - замечательный учитель", "Понял! Вы, похоже, неплохой преподаватель:)", "Запомнил! Скоро я всему научусь! Обещаю!", "Уф, постараюсь выучить!", "Понял! Впреть постараюсь никогда не ошибаться!", "Выучил! (Мне очень нравится эта тема!!!)", "Понял. Спасибо!", "Это сложовато пока для меня. Но я стараюсь запомнить всё, что вы говорите.", "Запомнил! Какая непросто! Но я люблю узнавать все новое!!!", "Эх, как бы не забыть в следующий раз...", "Надеюсь, в следующий раз у меня получится сказать все правильно", "Спасибо за разъяснение!"]
 propose_answer_replics = ["Я подумал и решил, что ответ: ", "Мне кажется, что ответ: ", "Я не до конца уверен, но, по-моему, ответ: ", "На мой взгляд, должно получиться", "Какая сложная задача! Даже не знаю. Эх, была-не была. Думаю, что ответ: ", "Так-так...Что-то мне подсказывает, что ответ: ", "Ооочень не уверен, но считаю, что ответ: ", "Кажется, я посчитал!!! Ответ: ", "Очень заковыристо. Ответ: "]
 ok_replics = ["Правильно?", "Верно?", "Так?", "Я прав?", "Всё верно?"]
-abuse_replics = ["Не ругайтесь, пожалуйста! Я ещё маленький! \n", "Зачем так грубо... Мне грустно. ", "Грубовато... А ведь я хороший. "]
+abuse_replics = ["Не ругайтесь, пожалуйста! Я ещё маленький!", "Зачем так грубо... Мне грустно. ", "Грубовато... А ведь я хороший. "]
         
         
 def yes_answer(user):
@@ -1264,11 +1272,7 @@ def propose_answer_replic(user):
 def ok_replic():    
     return replic_randomizer_without_memory(ok_replics)
     
-modes = {}
-used_yes_answers = {}
-used_nothing_answers = {}
-used_remember_replics = {}
-used_propose_answer_replics = {}
+
 
 last_answer = ""
 
@@ -1284,6 +1288,7 @@ def generate_answer(last_answer, user):
     global classification_features, answer_features, parameters_features
     global repair_parameters_iteration
     global user_id
+    global used_yes_answers, used_nothing_answers, used_remember_replics, used_propose_answer_replics
     
     if user not in modes.keys():
         modes.update({user: "sug_parameters_name"})
