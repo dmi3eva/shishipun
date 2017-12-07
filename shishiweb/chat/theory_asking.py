@@ -94,7 +94,7 @@ def participle(sentence, word):
     position = words.index(word)
     ind = position + 1
     if (ind < len(words)):
-        print("   " + words[ind] + " POS = " + morph.parse(words[ind])[0].tag.POS)
+        #print("   " + words[ind] + " POS = " + morph.parse(words[ind])[0].tag.POS)
         analysis = morph.parse(words[ind])[0].tag.POS
         if (analysis == "PRTS"):
             return words[ind]
@@ -277,9 +277,7 @@ def private_noun_question(sentence, noun):
     subordinator = subordinate(sentence, noun)
     
     if (noun not in subordinators):
-        print("Here")
-        print(predicator)
-        print("prt " + participle(sentence, predicator))
+        
         question += adjective(sentence, subordinator) + " " + descriptive(sentence, subordinator, noun) + " " + adverb(sentence, predicator) + " " + predicator + " " + participle(sentence, predicator)
     else:
         if (morph.parse(noun[0])[0].tag.animacy == "anim"):
@@ -293,7 +291,7 @@ def private_noun_question(sentence, noun):
             prts = morph.parse(participle(sentence, predicator))[0]
             vrb = morph.parse(predicator)[0]
             prts_norm = ""
-            print("hello " + participle(sentence, predicator))
+            
             if (participle(sentence, predicator) != ""):
                 prts_norm = prts.inflect({'neut'}).word
             question += adverb(sentence, predicator) + " " + vrb.inflect({'neut'}).word + " " + prts_norm
@@ -404,8 +402,7 @@ def find_answer(question):
         best_sent = ""
         for i in range(len(sentences)):
             inter = sentence_intersection(question, sentences[i])
-            print(sentences[i])
-            print(inter)
+            
             if (len(inter) > max_inter):
                 max_inter = len(inter)
                 best_sent = sentences[i]
@@ -465,7 +462,7 @@ def read_special_knowledge(q_num):
     filename = generate_files_name("special_knowledge")
     res = []
     if not os.path.exists(filename): 
-        print("xxx")
+        
         generate_inital_files(filename)
         file_k = open(filename, 'w')
         for i in range(q_num):
@@ -476,7 +473,7 @@ def read_special_knowledge(q_num):
         file_k = open(filename, 'r')
         content = file_k.read()
         res = content.split('\n')
-        print(res)
+        
     file_k.close()
     res.pop()
     return res
@@ -517,9 +514,9 @@ def general_question(statement):
     knowledge = read_knowledge()
     questions, keywords, tabu = read_general_questions()  
     q_num = len(questions)
-    print(q_num)
+    
     used = read_special_knowledge(q_num)
-    print(used)
+    
     for i in range(q_num):
         inter_k = sentence_intersection(keywords[i], statement)
         inter_t = sentence_noun_intersection(tabu[i], knowledge)
@@ -546,7 +543,7 @@ def find_question(statement):
     priority = find_priority(statement)
     knowledge = read_knowledge()
     facts = set(extract_normal_nouns(knowledge))
-    print(facts)
+    
     for i in range(len(priority)):
         candidate = priority[i]
         words = extract_nouns(candidate)
