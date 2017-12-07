@@ -5,7 +5,7 @@ import pymorphy2
 morph = pymorphy2.MorphAnalyzer()
 import os
 import shutil
-from problem_solving import generate_inital_files
+from chat.problem_solving import generate_inital_files
 
 theory_file = 'theory'
 
@@ -319,7 +319,7 @@ def sentence_intersection(sent1, sent2):
     
     words1 = list(map(lambda x: morph.parse(x)[0].normal_form, words1))
     
-    words2 = s2.split(" ")        file_k = open(filename, 'w')
+    words2 = s2.split(" ")       
 
     
     words2 = list(map(lambda x: morph.parse(x)[0].normal_form, words2))
@@ -329,8 +329,7 @@ def sentence_noun_intersection(sent1, sent2):
     s1 = remove_punctuation(sent1.lower())
     s2 = remove_punctuation(sent2.lower())
     words1_all = s1.split(" ")   
-    words1_all = list(map(lamb        file_k = open(filename, 'w')
-da x: morph.parse(x)[0].normal_form, words1_all))
+    words1_all = list(map(lambda x: morph.parse(x)[0].normal_form, words1_all))
     
     words1 = []
     for word in words1_all:
@@ -363,7 +362,8 @@ def read_knowledge():
     filename = generate_files_name("knowledge")
     if not os.path.exists(filename): 
         generate_inital_files(filename)
-       
+        file_k = open(filename, 'w')
+        
         content = ""
     else:
         file_k = open(filename, 'r')
