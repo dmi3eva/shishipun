@@ -465,6 +465,7 @@ def read_special_knowledge(q_num):
     filename = generate_files_name("special_knowledge")
     res = []
     if not os.path.exists(filename): 
+        print("xxx")
         generate_inital_files(filename)
         file_k = open(filename, 'w')
         for i in range(q_num):
@@ -475,6 +476,7 @@ def read_special_knowledge(q_num):
         file_k = open(filename, 'r')
         content = file_k.read()
         res = content.split('\n')
+        print(res)
     file_k.close()
     res.pop()
     return res
@@ -515,10 +517,13 @@ def general_question(statement):
     knowledge = read_knowledge()
     questions, keywords, tabu = read_general_questions()  
     q_num = len(questions)
+    print(q_num)
     used = read_special_knowledge(q_num)
+    print(used)
     for i in range(q_num):
         inter_k = sentence_intersection(keywords[i], statement)
         inter_t = sentence_noun_intersection(tabu[i], knowledge)
+        
         if (len(inter_k) > 0 and len(inter_t) == 0 and int(used[i]) == 0):
             used[i] = 1
             write_special_knowledge(used)
