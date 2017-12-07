@@ -5,6 +5,7 @@ import pymorphy2
 morph = pymorphy2.MorphAnalyzer()
 import os
 import shutil
+from problem_solving import generate_inital_files
 
 theory_file = 'theory'
 
@@ -318,7 +319,8 @@ def sentence_intersection(sent1, sent2):
     
     words1 = list(map(lambda x: morph.parse(x)[0].normal_form, words1))
     
-    words2 = s2.split(" ")
+    words2 = s2.split(" ")        file_k = open(filename, 'w')
+
     
     words2 = list(map(lambda x: morph.parse(x)[0].normal_form, words2))
     return set(words1) & set(words2)
@@ -327,7 +329,8 @@ def sentence_noun_intersection(sent1, sent2):
     s1 = remove_punctuation(sent1.lower())
     s2 = remove_punctuation(sent2.lower())
     words1_all = s1.split(" ")   
-    words1_all = list(map(lambda x: morph.parse(x)[0].normal_form, words1_all))
+    words1_all = list(map(lamb        file_k = open(filename, 'w')
+da x: morph.parse(x)[0].normal_form, words1_all))
     
     words1 = []
     for word in words1_all:
@@ -359,7 +362,8 @@ def  not_found_question_replic():
 def read_knowledge():
     filename = generate_files_name("knowledge")
     if not os.path.exists(filename): 
-        file_k = open(filename, 'w')
+        generate_inital_files(filename)
+       
         content = ""
     else:
         file_k = open(filename, 'r')
@@ -369,7 +373,9 @@ def read_knowledge():
 def read_theory():
     filename = generate_global_files_name("theory")
     if not os.path.exists(filename): 
-        file_k = open(filename, 'w')
+        generate_inital_files(filename)
+        
+        
         content = ""
     else:
         file_k = open(filename, 'r')
@@ -378,8 +384,10 @@ def read_theory():
     
 def save_knowledge(new_info):
     filename = generate_files_name("knowledge")
-    if not os.path.exists(filename): 
-        file_k = open(filename, 'w')
+    
+    if not os.path.exists(filename):        
+       
+        generate_inital_files(filename)
     else:
         file_k = open(filename, 'a')
         file_k.write(new_info + ".")
@@ -457,6 +465,7 @@ def read_special_knowledge(q_num):
     filename = generate_files_name("special_knowledge")
     res = []
     if not os.path.exists(filename): 
+        generate_inital_files(filename)
         file_k = open(filename, 'w')
         for i in range(q_num):
             file_k.write('0\n')
